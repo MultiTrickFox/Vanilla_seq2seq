@@ -1,13 +1,17 @@
 import glob
 import pickle
 import random
-# import music21
+import music21
 
-# from music21 import converter # note, chord
+from music21 import converter # note, chord
 from multiprocessing import Pool, cpu_count
 
 min_seq_len = 10
 max_seq_len = 40
+
+MAX_OCTAVE = 7
+MAX_DURATION = 8.0 ; SPLIT_DURATION = 2.0
+MAX_VOLUME = 127
 
 
 def preprocess():
@@ -78,19 +82,21 @@ def parse_fn(stream):
 
         vocab_vect, oct_vect, dur_vect, vol_vect = vectorize_element(element)
 
-        vocab_seq_container.append(vocab_vect)
-        oct_seq_container.append(oct_vect)
-        dur_seq_container.append(dur_vect)
-        vol_seq_container.append(vol_vect)
+        if vocab_vect is not None:
 
-        if split_cond(dur_vect):
-            if min_seq_len <= len(vocab_seq_container) <= max_seq_len:
-                mstream.append([vocab_seq_container,
-                                oct_seq_container,
-                                dur_seq_container,
-                                vol_seq_container])
+            vocab_seq_container.append(vocab_vect)
+            oct_seq_container.append(oct_vect)
+            dur_seq_container.append(dur_vect)
+            vol_seq_container.append(vol_vect)
 
-            vocab_seq_container, oct_seq_container, dur_seq_container, vol_seq_container = [], [], [], []
+            if split_cond(dur_vect):
+                if min_seq_len <= len(vocab_seq_container) <= max_seq_len:
+                    mstream.append([vocab_seq_container,
+                                    oct_seq_container,
+                                    dur_seq_container,
+                                    vol_seq_container])
+
+                vocab_seq_container, oct_seq_container, dur_seq_container, vol_seq_container = [], [], [], []
 
 
     for i, thing in enumerate(mstream[:-1]):
@@ -118,39 +124,49 @@ def vectorize_element(element):
 
         if element.isNote:
             note_id = note_dict[element.pitch.name]
-            if duration_minmax(element):
+            if duration_isValid(element):
                 vocab_vect[note_id] += 1
-                oct_vect[note_id] += element.pitch.octave
+                oct_vect[note_id] += float(element.pitch.octave)
                 dur_vect[note_id] += float(element.duration.quarterLength)
-                vol_vect[note_id] += element.volume.Velocity
+                vol_vect[note_id] += float(element.volume.Velocity)
 
         elif element.isChord:
             for e in element:
                 note_id = note_dict[e.pitch.name]
-                if duration_minmax(e):
-                    duplicateNote = True if vocab_vect[note_id] != 0 else False
+                if duration_isValid(e):
+                    duplicateNote = vocab_vect[note_id] != 0
                     vocab_vect[note_id] += 1
-                    oct_vect[note_id] += e.pitch.octave
+                    oct_vect[note_id] += float(e.pitch.octave)
                     dur_vect[note_id] += float(e.duration.quarterLength)
-                    vol_vect[note_id] += e.volume.Velocity
+                    vol_vect[note_id] += float(e.volume.Velocity)
+
                     if duplicateNote:
                         oct_vect[note_id] /=2
                         dur_vect[note_id] /=2
                         vol_vect[note_id] /=2
 
         elif element.isRest:
-            if duration_minmax(element):
+            if duration_isValid(element):
                 note_id = note_dict['R']
                 vocab_vect[note_id] += 1
                 dur_vect[note_id] += float(element.duration.quarterLength)
 
-        vocab_sum = sum(vocab_vect) ; vocab_vect = [e/vocab_sum for e in vocab_vect]
+        else: return None, None, None, None
+
+        # normalization
+
+        vocab_sum = sum(vocab_vect)
+        if vocab_sum != 1: vocab_vect = [float(e/vocab_sum) for e in vocab_vect]
+        # oct_vect = [float(e/MAX_OCTAVE) for e in oct_vect if e != 0]
+        # dur_vect = [float(e/MAX_DURATION) for e in dur_vect if e != 0]
+        # vol_vect = [float(e/MAX_VOLUME) for e in vol_vect if e != 0]
 
     except: pass # make dis 'attribute-not-found' error
 
     return vocab_vect, oct_vect, dur_vect, vol_vect
 
-def duration_minmax(element): return True if 4 > element.duration.quarterLength > 0 else False
+
+def duration_isValid(element): return 0.0 < float(element.duration.quarterLength) <= MAX_DURATION
 
 
 note_dict = {
@@ -190,7 +206,7 @@ vocab_size = len(note_reverse_dict)
 
 def split_cond(dur_vect):
     for dur in dur_vect:
-        if dur >= 2: return True
+        if dur >= SPLIT_DURATION: return True
     return False
 
 def import_fn(raw_file):

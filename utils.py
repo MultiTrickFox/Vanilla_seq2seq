@@ -14,7 +14,6 @@ import random
 
 hm_ins = Vanilla.hm_ins
 hm_outs = Vanilla.hm_outs
-# max_time = Vanilla.max_time
 is_stop_cond = Vanilla.stop_cond
 
 grad_save_time = 15

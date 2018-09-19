@@ -47,7 +47,7 @@ drop_out = 0.0
 
 
 data_path = 'samples.pkl'
-data_size = 10_000 ; batch_size = 100
+data_size = 5_000 ; batch_size = 100
 
 
 def train_rms(model, accu_grads, data, num_epochs=1, disp_details=False):

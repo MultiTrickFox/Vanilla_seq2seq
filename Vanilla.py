@@ -429,19 +429,21 @@ def init_states(model, hm_ins):
 def init_outstates(model, hm_outs):
     return [[torch.ones([len(model[-1]['vr_1'])], requires_grad=True) for _ in range(hm_outs)]]
 
+
+import res
+stop_dur = res.SPLIT_DURATION
 def stop_cond(output_t):
 
     notes = output_t[0]
     durations = output_t[2]
 
-    sel_notes = [_ for _,e in enumerate(notes) if e.item() >= 0.5]
-    if sel_notes == []: sel_notes = [torch.argmax(notes).item()]
+    sel_notes = [_ for _,e in enumerate(notes) if e.item() >= 0.1]
 
     for note in sel_notes:
         if note == 12: return True
 
     for dur in durations:
-        if float(dur) >= 2: return True
+        if float(dur) >= stop_dur: return True
     return False
 
 

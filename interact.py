@@ -96,8 +96,8 @@ def ai_2_human(out_t, isSoftmaxed=False, chordMode=True):
     sel_vols   = res.empty_vect.copy()
 
     if chordMode and not isSoftmaxed:
-        sel_vocabs = [_ for _,e in enumerate(vocabs) if e.item() >= 0.5]
-    if sel_vocabs == []: sel_vocabs = [torch.argmax(vocabs).item()]
+        sel_vocabs = [_ for _,e in enumerate(vocabs) if e.item() >= 0.1]
+    # if sel_vocabs == []: sel_vocabs = [torch.argmax(vocabs).item()]
 
     for vocab in sel_vocabs:
         sel_octs[vocab] += float(octaves[vocab])
