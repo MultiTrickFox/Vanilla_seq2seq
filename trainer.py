@@ -47,7 +47,9 @@ drop_out = 0.0
 
 
 data_path = 'samples.pkl'
-data_size = 1_000 ; batch_size = 100
+data_size = 5_000 ; batch_size = 100
+
+show_me_a_datapoint = False
 
 
 def train_rms(model, accu_grads, data, num_epochs=1, disp_details=False):
@@ -423,13 +425,11 @@ if __name__ == '__main__':
     data = res.load_data(data_path,data_size)
     IOdims = res.vocab_size
 
-    # # here is a sample..
-    # print('X:')
-    # for thing in data[0][0:4]:
-    #     print(thing)
-    # print('Y:')
-    # for thing in data[0][4:]:
-    #     print(thing)
+    if show_me_a_datapoint: # here is a sample datapoint (X & Y)..
+        print('X:')
+        for thing in data[0][0:4]: print(thing)
+        print('Y:')
+        for thing in data[0][4:]: print(thing)
 
     model = res.load_model()
     if model is None: model = Vanilla.create_model(IOdims,layer_sizes,IOdims)

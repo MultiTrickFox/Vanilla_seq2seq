@@ -14,7 +14,7 @@ MAX_DURATION = 8.0 ; SPLIT_DURATION = 2.0
 MAX_VOLUME = 127
 
 
-show_passed_exceptions = False
+show_passed_exceptions = True
 
 
 def preprocess():
@@ -27,8 +27,12 @@ def preprocess():
     raw_files = glob.glob("samples/*.mid")
     imported_files = []
 
+    global show_passed_exceptions
+    if show_passed_exceptions and \
+       input('Show Passed Errors: (Y/N)').lower() != 'y':
+        show_passed_exceptions = False
 
-    print(f'Detected CPU(s): {cpu_count()}')
+    print(f'\nDetected CPU(s): {cpu_count()}\n')
 
     with Pool(cpu_count()) as p:
 
@@ -40,7 +44,7 @@ def preprocess():
         for result in results.get():
             if result is not None:
                 imported_files.append(result)
-        print(f'\nFiles Obtained: {len(results.get())}\n')
+        print(f'Files Obtained: {len(results.get())}\n')
 
 
     with Pool(cpu_count()) as p2:
@@ -58,7 +62,7 @@ def preprocess():
                 vol_seqs_X.extend(result[6])   ; vol_seqs_Y.extend(result[7])
         print()
 
-    print(f'\nSamples Collected: {len(vocab_seqs_X)}\n')
+    print(f'Samples Collected: {len(vocab_seqs_X)}\n')
 
     data = [
         [vocab_seqs_X, oct_seqs_X, dur_seqs_X, vol_seqs_X],
@@ -131,7 +135,6 @@ def vectorize_element(element):
                 oct_vect[note_id] += float(element.pitch.octave)
                 dur_vect[note_id] += float(element.duration.quarterLength)
                 vol_vect[note_id] += float(element.volume.velocity)
-            else: return None, None, None, None
 
         elif element.isChord:
             for e in element:
@@ -147,20 +150,19 @@ def vectorize_element(element):
                         oct_vect[note_id] /=2
                         dur_vect[note_id] /=2
                         vol_vect[note_id] /=2
-                else: return None, None, None, None
 
         elif element.isRest:
             if duration_isValid(element):
                 note_id = note_dict['R']
                 vocab_vect[note_id] += 1
                 dur_vect[note_id] += float(element.duration.quarterLength)
-            else: return None, None, None, None
 
-        else: return None, None, None, None
 
-        # normalization
+        # normalization & fixes
 
         vocab_sum = sum(vocab_vect)
+
+        if vocab_sum == 0: return None, None, None, None
 
         if vocab_sum != 1: vocab_vect = [float(e/vocab_sum) for e in vocab_vect]
         # oct_vect = [float(e/MAX_OCTAVE) for e in oct_vect if e != 0]
