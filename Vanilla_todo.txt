@@ -1,0 +1,24 @@
+@ Vanilla TODO:
+
+- parent v2
+
+
+- interact:
+
+	2 types of activity:
+		>response
+		>song creation (outputs auto-feedback)
+
+	2 types of user input:
+		>drag & drop (pre-recorded midi file)
+		>from musescore (record now)
+	
+
+- main:
+
+	1-user inserts samples to samples
+	2-preprocess starts
+	3-parent initiates
+		> user defines:
+			total_epochs
+			learning_rate

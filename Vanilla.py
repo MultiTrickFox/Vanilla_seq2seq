@@ -412,7 +412,7 @@ def custom_mse(output_seq, label_seq):
         lbl = label_seq[t]
         pred = output_seq[t]
 
-        sequence_losses.append((lbl - pred).mean()) # why not ; lbl - pred ** 3     -faster convergence?
+        sequence_losses.append(-(lbl - pred).mean()) # why not ; lbl - pred ** 3     -faster convergence?
 
     return sequence_losses
 

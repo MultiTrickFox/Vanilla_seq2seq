@@ -6,6 +6,7 @@ import music21
 from music21 import converter # note, chord
 from multiprocessing import Pool, cpu_count
 
+
 min_seq_len = 10
 max_seq_len = 40
 
@@ -289,28 +290,18 @@ def pickle_load(file_path):
 
 
 
-def write_epoch_details(epoch, epoch_losses):
-    with open('summ_epochs.txt','a') as file:
-        file.write(f"Epoch: {epoch}, Loss: {epoch_losses}\n")
+def write_loss(epoch_losses, as_txt=False, epoch_nr=None):
+    if not as_txt:
+        for i, loss in enumerate(epoch_losses):
+            print('{{"metric": "Loss {}", "value": {}}}'.format(i+1, float(loss)))
+    else:
+        for _, loss in enumerate(epoch_losses):
+            with open('loss_'+str(_+1)+'.txt','a+') as f:
+                f.write(str(epoch_nr)+','+str(loss)+'\n')
 
-    json_print_loss(epoch_losses)
-
-def write_grad_details(model, floydout=False):
-    try:
-        grad_file = '/output/summ_grads.txt' if floydout else 'summ_grads.txt'
-        if floydout:
-            with open(grad_file,'a') as file:
-                for _,layer in enumerate(model):
-                    for name in layer:
-                        file.write('Layer '+str(_)+' Grad '+name+' : '+str(layer[name].grad)+'\n')
-                file.write('\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n')
-    except:
-        print('Gradient save error.')
-
-def json_print_loss(epoch_losses):
-    for i, loss in enumerate(epoch_losses):
-        print('{{"metric": "Loss {}", "value": {}}}'.format(i+1, float(loss)))
-    print("")
+def initialize_loss_txt():
+    for _ in range(4):
+        open('loss_' + str(_ + 1) + '.txt', "w+").close()
 
 
 

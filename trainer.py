@@ -1,4 +1,6 @@
+# import os
 import res
+import time
 import utils
 import torch
 import random
@@ -47,18 +49,19 @@ drop_out = 0.0
 
 
 data_path = 'samples.pkl'
-data_size = 5_000 ; batch_size = 100
+data_size = 1_000 ; batch_size = 200
 
-show_me_a_datapoint = False
+write_loss_to_txt = True
 
 
-def train_rms(model, accu_grads, data, num_epochs=1, disp_details=False):
+
+def train_rms(model, accu_grads, data, num_epochs=1, display_details=False):
 
     num_samples = len(data)
     num_batches = int(num_samples / batch_size)
     num_workers = torch.multiprocessing.cpu_count()
 
-    if disp_details:
+    if display_details:
         print('\n'
               f'\/ Training Started : Rms \/\n'
               f'Sample Amount: {num_samples}\n'
@@ -71,10 +74,7 @@ def train_rms(model, accu_grads, data, num_epochs=1, disp_details=False):
 
     for epoch in range(num_epochs):
 
-        # print('> Epoch', epoch+1, 'running ')
-        # floyd_out('> Epoch ' + str(epoch + 1) + ' running: ')
-
-        # start_t = time.time()
+        start_t = time.time()
 
         epoch_loss = np.zeros(Vanilla.hm_outs)
 
@@ -112,27 +112,20 @@ def train_rms(model, accu_grads, data, num_epochs=1, disp_details=False):
 
                 epoch_loss += batch_loss
 
-            # res.write_grad_details(model)                # ; Vanilla.disp_grads(model)
+            # Vanilla.disp_grads(model)
 
             optimize_model(model, accu_grads, batch_size=batch_size, lr=learning_rate, alpha=rms_alpha)
 
-            # res.save_model(model, epoch, asText=True)    # ; Vanilla.disp_params(model)
-
-            # floyd_out('/')
-
-        # floyd_out('\n')
-
-        # floyd_out_params(Vanilla.return_weights(model))
+            # Vanilla.disp_params(model)
 
         losses.append(epoch_loss)
 
-        if disp_details: res.json_print_loss(epoch_loss)
+        if display_details:
+            if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
+            else: res.write_loss(epoch_loss)
+            print(f'epoch {epoch+1} / {num_epochs} completed. PET: {time.time() - start_t}')
 
-        # res.write_epoch_details(epoch, epoch_losses) # ; res.save_model(model, epoch, asText=True)
-
-        # print(f'epoch {epoch+1} / {num_epochs} completed. PET: {time.time() - start_t}')
-
-    # floyd_out('done.\n')
+        # res.save_model(model, epoch, asText=True)
 
     return model, accu_grads, losses
 
@@ -244,13 +237,13 @@ def load_moments(model, model_id=None):
 
 
 
-def train_rmsadv(model, accu_grads, moments, data, epoch_nr=None, disp_details=False):
+def train_rmsadv(model, accu_grads, moments, data, epoch_nr=None, display_details=False):
 
     num_samples = len(data)
     num_batches = int(num_samples / batch_size)
     num_workers = torch.multiprocessing.cpu_count()
 
-    if disp_details:
+    if display_details:
         print('\n'
               f'\/ Training Started : Rms_adv \/\n'
               f'Sample Amount: {num_samples}\n'
@@ -306,18 +299,20 @@ def train_rmsadv(model, accu_grads, moments, data, epoch_nr=None, disp_details=F
 
         losses.append(epoch_loss)
 
-        if disp_details: res.json_print_loss(epoch_loss)
+        if display_details:
+            if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
+            else: res.write_loss(epoch_loss)
 
     return model, accu_grads, moments, losses
 
 
-def train_adam(model, accu_grads, moments, data, epoch_nr, disp_details=False):
+def train_adam(model, accu_grads, moments, data, epoch_nr, display_details=False):
 
     num_samples = len(data)
     num_batches = int(num_samples / batch_size)
     num_workers = torch.multiprocessing.cpu_count()
 
-    if disp_details:
+    if display_details:
         print('\n'
               f'\/ Training Started : Adam \/\n'
               f'Sample Amount: {num_samples}\n'
@@ -370,7 +365,9 @@ def train_adam(model, accu_grads, moments, data, epoch_nr, disp_details=False):
 
         losses.append(epoch_loss)
 
-        if disp_details: res.json_print_loss(epoch_loss)
+        if display_details:
+            if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
+            else: res.write_loss(epoch_loss)
 
     return model, accu_grads, moments, losses
 
@@ -418,6 +415,7 @@ def process_fn_alt(fn_input):
 
 
 
+
 if __name__ == '__main__':
 
     torch.set_default_tensor_type('torch.FloatTensor')
@@ -425,16 +423,19 @@ if __name__ == '__main__':
     data = res.load_data(data_path,data_size)
     IOdims = res.vocab_size
 
-    if show_me_a_datapoint: # here is a sample datapoint (X & Y)..
-        print('X:')
-        for thing in data[0][0:4]: print(thing)
-        print('Y:')
-        for thing in data[0][4:]: print(thing)
+    if write_loss_to_txt:
+        res.initialize_loss_txt()
+
+    # # here is a sample datapoint (X & Y)..
+    # print('X:')
+    # for thing in data[0][0:4]: print(thing)
+    # print('Y:')
+    # for thing in data[0][4:]: print(thing)
 
     model = res.load_model()
     if model is None: model = Vanilla.create_model(IOdims,layer_sizes,IOdims)
     accu_grads = load_accugrads(model)
 
-    model, accu_grads, losses = train_rms(model, accu_grads, data, num_epochs=epochs, disp_details=True)
+    model, accu_grads, losses = train_rms(model, accu_grads, data, num_epochs=epochs, display_details=True)
     res.save_model(model)
     save_accugrads(accu_grads)

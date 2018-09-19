@@ -125,7 +125,7 @@ def start_parenting(model_id=None):
             ctr_loss_increase_below_delta = 0
             ctr_loss_increase_above_delta = 0
 
-            res.json_print_loss(loss_epochs[0])
+            res.write_loss(loss_epochs[0])
             real_losses[model_id].append(current_loss)
 
             checkpoints.append([model, accu_grads, current_loss])
@@ -170,7 +170,7 @@ def start_parenting(model_id=None):
 
                     ctr_loss_increase_below_delta +=1
 
-                    res.json_print_loss(loss_epochs[0])
+                    res.write_loss(loss_epochs[0])
 
                     branches.append([model, accu_grads, current_loss])
 
@@ -225,7 +225,6 @@ def start_parenting(model_id=None):
                         checkpoints.extend(new_checkpoints) ; branches.extend(new_branches)
 
 
-        # ctr_epoch +=1
 
 
 
@@ -272,7 +271,7 @@ def advance_parenting(model, accu_grads, moments, model_id):
             ctr_loss_increase_below_delta = 0
             ctr_loss_increase_above_delta = 0
 
-            res.json_print_loss(loss_epochs[0])
+            res.write_loss(loss_epochs[0])
             real_losses[model_id].append(current_loss)
 
             checkpoints.append([model, accu_grads, moments, ctr_epoch, current_loss])
@@ -323,7 +322,7 @@ def advance_parenting(model, accu_grads, moments, model_id):
 
                     ctr_loss_increase_below_delta +=1
 
-                    res.json_print_loss(loss_epochs[0])
+                    res.write_loss(loss_epochs[0])
 
                     branches.append([model, accu_grads, moments, ctr_epoch, current_loss])
 
