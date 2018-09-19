@@ -46,8 +46,8 @@ drop_mid = 0.0
 drop_out = 0.0
 
 
-data_path = 'samples.pkl'
-data_size = 5_000 ; batch_size = 100
+data_path = 'samples2.pkl'
+data_size = 1_000 ; batch_size = 100
 
 
 def train_rms(model, accu_grads, data, num_epochs=1, disp_details=False):
@@ -420,7 +420,7 @@ if __name__ == '__main__':
 
     torch.set_default_tensor_type('torch.FloatTensor')
 
-    data = res.load_data(data_path,data_size)
+    data = res.load_data(data_path,data_size) ; print(data[0][3])
     IOdims = res.vocab_size
 
     model = res.load_model()

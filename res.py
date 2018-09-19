@@ -161,7 +161,9 @@ def vectorize_element(element):
         # dur_vect = [float(e/MAX_DURATION) for e in dur_vect if e != 0]
         # vol_vect = [float(e/MAX_VOLUME) for e in vol_vect if e != 0]
 
-    except: pass # make dis 'attribute-not-found' error
+    except Exception as e:
+        print('Element Error:', e)
+        return None, None, None, None
 
     return vocab_vect, oct_vect, dur_vect, vol_vect
 
