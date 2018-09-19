@@ -46,7 +46,7 @@ drop_mid = 0.0
 drop_out = 0.0
 
 
-data_path = 'samples2.pkl'
+data_path = 'samples.pkl'
 data_size = 1_000 ; batch_size = 100
 
 
@@ -420,8 +420,16 @@ if __name__ == '__main__':
 
     torch.set_default_tensor_type('torch.FloatTensor')
 
-    data = res.load_data(data_path,data_size) ; print(data[0][3])
+    data = res.load_data(data_path,data_size)
     IOdims = res.vocab_size
+
+    # # here is a sample..
+    # print('X:')
+    # for thing in data[0][0:4]:
+    #     print(thing)
+    # print('Y:')
+    # for thing in data[0][4:]:
+    #     print(thing)
 
     model = res.load_model()
     if model is None: model = Vanilla.create_model(IOdims,layer_sizes,IOdims)

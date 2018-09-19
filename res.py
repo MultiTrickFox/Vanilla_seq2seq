@@ -14,6 +14,9 @@ MAX_DURATION = 8.0 ; SPLIT_DURATION = 2.0
 MAX_VOLUME = 127
 
 
+show_passed_exceptions = False
+
+
 def preprocess():
 
     vocab_seqs_X, vocab_seqs_Y = [], []
@@ -121,14 +124,14 @@ def vectorize_element(element):
     vol_vect   = vocab_vect.copy()
 
     try:
-
         if element.isNote:
             note_id = note_dict[element.pitch.name]
             if duration_isValid(element):
                 vocab_vect[note_id] += 1
                 oct_vect[note_id] += float(element.pitch.octave)
                 dur_vect[note_id] += float(element.duration.quarterLength)
-                vol_vect[note_id] += float(element.volume.Velocity)
+                vol_vect[note_id] += float(element.volume.velocity)
+            else: return None, None, None, None
 
         elif element.isChord:
             for e in element:
@@ -138,31 +141,34 @@ def vectorize_element(element):
                     vocab_vect[note_id] += 1
                     oct_vect[note_id] += float(e.pitch.octave)
                     dur_vect[note_id] += float(e.duration.quarterLength)
-                    vol_vect[note_id] += float(e.volume.Velocity)
+                    vol_vect[note_id] += float(e.volume.velocity)
 
                     if duplicateNote:
                         oct_vect[note_id] /=2
                         dur_vect[note_id] /=2
                         vol_vect[note_id] /=2
+                else: return None, None, None, None
 
         elif element.isRest:
             if duration_isValid(element):
                 note_id = note_dict['R']
                 vocab_vect[note_id] += 1
                 dur_vect[note_id] += float(element.duration.quarterLength)
+            else: return None, None, None, None
 
         else: return None, None, None, None
 
         # normalization
 
         vocab_sum = sum(vocab_vect)
+
         if vocab_sum != 1: vocab_vect = [float(e/vocab_sum) for e in vocab_vect]
         # oct_vect = [float(e/MAX_OCTAVE) for e in oct_vect if e != 0]
         # dur_vect = [float(e/MAX_DURATION) for e in dur_vect if e != 0]
         # vol_vect = [float(e/MAX_VOLUME) for e in vol_vect if e != 0]
 
     except Exception as e:
-        print('Element Error:', e)
+        if show_passed_exceptions: print('Element', element, 'passed Error:', e)
         return None, None, None, None
 
     return vocab_vect, oct_vect, dur_vect, vol_vect
