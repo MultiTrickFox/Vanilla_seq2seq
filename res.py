@@ -14,7 +14,6 @@ MAX_OCTAVE = 7
 MAX_DURATION = 8.0 ; SPLIT_DURATION = 2.0
 MAX_VOLUME = 127
 
-
 show_passed_exceptions = False
 
 
@@ -107,10 +106,11 @@ def parse_fn(stream):
                 vocab_seq_container, oct_seq_container, dur_seq_container, vol_seq_container = [], [], [], []
 
 
-    for i, thing in enumerate(mstream[:-1]):
-        thingp1 = mstream[i+1]
-        vocab_seqs_X.append(thing[0])  ;oct_seqs_X.append(thing[1])  ;dur_seqs_X.append(thing[2])  ;vol_seqs_X.append(thing[3])
-        vocab_seqs_Y.append(thingp1[0]);oct_seqs_Y.append(thingp1[1]);dur_seqs_Y.append(thingp1[2]);vol_seqs_Y.append(thingp1[3])
+    if len(mstream) != 1:
+        for i, thing in enumerate(mstream[:-1]):
+                thingp1 = mstream[i+1]
+                vocab_seqs_X.append(thing[0])  ;oct_seqs_X.append(thing[1])  ;dur_seqs_X.append(thing[2])  ;vol_seqs_X.append(thing[3])
+                vocab_seqs_Y.append(thingp1[0]);oct_seqs_Y.append(thingp1[1]);dur_seqs_Y.append(thingp1[2]);vol_seqs_Y.append(thingp1[3])
 
 
     # print('File Parsed.')

@@ -33,6 +33,9 @@ layer_sizes = [5, 8, 7] # [8, 12, 10] # [2, 4, 5] # [3, 5, 4]
 epochs = 20
 learning_rate = 0.001
 
+data_size = 20_000 ; batch_size = 500
+data_path = 'samples.pkl'
+
 
 rms_alpha = 0.9
 
@@ -47,10 +50,6 @@ adam_alpha_accugrad = 0.999
 drop_in = 0.0
 drop_mid = 0.0
 drop_out = 0.0
-
-
-data_path = 'samples.pkl'
-data_size = 100 ; batch_size = 50
 
 write_loss_to_txt = True
 
