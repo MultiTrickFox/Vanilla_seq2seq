@@ -165,7 +165,7 @@ def vectorize_element(element):
 
         if vocab_sum == 0: return None, None, None, None
 
-        if vocab_sum != 1: vocab_vect = [float(e/vocab_sum) for e in vocab_vect]
+        if vocab_sum != 1: vocab_vect = [round(float(e/vocab_sum), 3) for e in vocab_vect]
         oct_vect = [round(e/MAX_OCTAVE, 3) for e in oct_vect]
         dur_vect = [round(e/MAX_DURATION, 3) for e in dur_vect]
         vol_vect = [round(e/MAX_VOLUME, 3) for e in vol_vect]

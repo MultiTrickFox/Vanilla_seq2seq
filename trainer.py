@@ -20,15 +20,18 @@ from Vanilla                         \
 from Vanilla                            \
     import custom_distance               \
     as loss_fn2
-loss_fn1 = loss_fn2 # hybrid-loss offline.
+loss_fn1 = loss_fn2   # hybrid-loss offline.
 
-from Vanilla                                \
-    import update_model_rmsprop              \
+from Vanilla                                 \
+    import update_model_rmsprop               \
     as optimize_model
 
 
+    # layer struct
+
 layer_sizes = [5, 8, 7] # [8, 12, 10] # [2, 4, 5] # [3, 5, 4]
 
+    # basic params
 
 epochs = 20
 learning_rate = 0.001
@@ -36,6 +39,9 @@ learning_rate = 0.001
 data_size = 20_000 ; batch_size = 500
 data_path = 'samples.pkl'
 
+train_basic = True
+
+    # advanced params
 
 rms_alpha = 0.9
 
@@ -46,13 +52,16 @@ rmsadv_alpha_accugrad = 0.9
 adam_alpha_moment = 0.9
 adam_alpha_accugrad = 0.999
 
-
 drop_in = 0.0
 drop_mid = 0.0
 drop_out = 0.0
 
+    # details
+
 write_loss_to_txt = True
 
+
+    # # #
 
 
 def train_rms(model, accu_grads, data, num_epochs=1, display_details=False):
@@ -123,7 +132,8 @@ def train_rms(model, accu_grads, data, num_epochs=1, display_details=False):
         if display_details:
             if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
             else: res.write_loss(epoch_loss)
-            print(f'epoch {epoch+1} / {num_epochs} completed. PET: {round((time.time() - start_t),3)}')
+            end_t = time.time() ; end_clock = time.asctime(time.localtime(end_t)).split(' ')[3]
+            print(f'@ {end_clock} : epoch {epoch+1} / {num_epochs} completed. PET: {round((end_t - start_t),0)}')
 
         # res.save_model(model, epoch, asText=True)
 
@@ -237,7 +247,7 @@ def load_moments(model, model_id=None):
 
 
 
-def train_rmsadv(model, accu_grads, moments, data, epoch_nr=None, display_details=False):
+def train_rmsadv(model, accu_grads, moments, data, epoch_nr=None, num_epochs=1, display_details=False):
 
     num_samples = len(data)
     num_batches = int(num_samples / batch_size)
@@ -304,12 +314,13 @@ def train_rmsadv(model, accu_grads, moments, data, epoch_nr=None, display_detail
         if display_details:
             if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
             else: res.write_loss(epoch_loss)
-            print(f'epoch {epoch+1} / {num_epochs} completed. PET: {round((time.time() - start_t),3)}')
+            end_t = time.time() ; end_clock = time.asctime(time.localtime(end_t)).split(' ')[3]
+            print(f'@ {end_clock} : epoch {epoch+1} / {num_epochs} completed. PET: {round((end_t - start_t),0)}')
 
     return model, accu_grads, moments, losses
 
 
-def train_adam(model, accu_grads, moments, data, epoch_nr, display_details=False):
+def train_adam(model, accu_grads, moments, data, epoch_nr=None, num_epochs=1, display_details=False):
 
     num_samples = len(data)
     num_batches = int(num_samples / batch_size)
@@ -366,6 +377,7 @@ def train_adam(model, accu_grads, moments, data, epoch_nr, display_details=False
 
                 epoch_loss += batch_loss
 
+            if epoch_nr is None: epoch_nr = epoch
             utils.update_model_adam(model, accu_grads, moments, epoch_nr, batch_size=batch_size, lr=learning_rate, alpha_moments=adam_alpha_moment, alpha_accugrads=adam_alpha_accugrad)
 
         losses.append(epoch_loss)
@@ -373,7 +385,8 @@ def train_adam(model, accu_grads, moments, data, epoch_nr, display_details=False
         if display_details:
             if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
             else: res.write_loss(epoch_loss)
-            print(f'epoch {epoch+1} / {num_epochs} completed. PET: {round((time.time() - start_t),3)}')
+            end_t = time.time() ; end_clock = time.asctime(time.localtime(end_t)).split(' ')[3]
+            print(f'@ {end_clock} : epoch {epoch+1} / {num_epochs} completed. PET: {round((end_t - start_t),0)}')
 
     return model, accu_grads, moments, losses
 
@@ -432,16 +445,49 @@ if __name__ == '__main__':
     if write_loss_to_txt:
         res.initialize_loss_txt()
 
-    # # here is a sample datapoint (X & Y)..
-    # print('X:')
-    # for thing in data[0][0:4]: print(thing)
-    # print('Y:')
-    # for thing in data[0][4:]: print(thing)
+    # here is a sample datapoint (X & Y)..
+    print('X:')
+    for thing in data[0][0:4]: print(thing)
+    print('Y:')
+    for thing in data[0][4:]: print(thing)
 
-    model = res.load_model()
-    if model is None: model = Vanilla.create_model(IOdims,layer_sizes,IOdims)
-    accu_grads = load_accugrads(model)
+    if train_basic:
 
-    model, accu_grads, losses = train_rms(model, accu_grads, data, num_epochs=epochs, display_details=True)
-    res.save_model(model)
-    save_accugrads(accu_grads)
+        # RMS basic training
+
+        model = res.load_model()
+        if model is None: model = Vanilla.create_model(IOdims,layer_sizes,IOdims)
+
+        accu_grads = load_accugrads(model)
+
+        model, accu_grads, losses = train_rms(
+            model,
+            accu_grads,
+            data,
+            num_epochs=epochs,
+            display_details=True)
+
+        res.save_model(model)
+        save_accugrads(accu_grads)
+
+    else:
+
+        # RMS advanced / ADAM training
+
+        model = res.load_model()
+        if model is None: model = Vanilla.create_model(IOdims, layer_sizes, IOdims)
+
+        accu_grads = load_accugrads(model)
+        moments = load_moments(model)
+
+        model, accu_grads, moments, losses = train_adam(
+            model,
+            accu_grads,
+            moments,
+            data,
+            num_epochs=epochs,
+            display_details=True)
+
+        res.save_model(model)
+        save_accugrads(accu_grads)
+        save_moments(moments)
