@@ -18,8 +18,9 @@ from Vanilla                         \
     import custom_entropy             \
     as loss_fn1
 from Vanilla                            \
-    import custom_mse                    \
+    import custom_distance               \
     as loss_fn2
+loss_fn1 = loss_fn2 # hybrid-loss offline.
 
 from Vanilla                                \
     import update_model_rmsprop              \
@@ -49,7 +50,7 @@ drop_out = 0.0
 
 
 data_path = 'samples.pkl'
-data_size = 1_000 ; batch_size = 200
+data_size = 100 ; batch_size = 50
 
 write_loss_to_txt = True
 
@@ -123,7 +124,7 @@ def train_rms(model, accu_grads, data, num_epochs=1, display_details=False):
         if display_details:
             if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
             else: res.write_loss(epoch_loss)
-            print(f'epoch {epoch+1} / {num_epochs} completed. PET: {time.time() - start_t}')
+            print(f'epoch {epoch+1} / {num_epochs} completed. PET: {round((time.time() - start_t),3)}')
 
         # res.save_model(model, epoch, asText=True)
 
@@ -149,7 +150,7 @@ def process_fn(fn_input):
         resp3.append(resp_t[3])    # response[:,3]
 
     loss_nodes = [
-        loss_fn1(resp0, trg[0], will_softmax=False),
+        loss_fn1(resp0, trg[0]),
         loss_fn2(resp1, trg[1]),
         loss_fn2(resp2, trg[2]),
         loss_fn2(resp3, trg[3])]
@@ -256,6 +257,8 @@ def train_rmsadv(model, accu_grads, moments, data, epoch_nr=None, display_detail
 
     for epoch in range(epochs):
 
+        start_t = time.time()
+
         epoch_loss = np.zeros(Vanilla.hm_outs)
 
         random.shuffle(data)
@@ -302,6 +305,7 @@ def train_rmsadv(model, accu_grads, moments, data, epoch_nr=None, display_detail
         if display_details:
             if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
             else: res.write_loss(epoch_loss)
+            print(f'epoch {epoch+1} / {num_epochs} completed. PET: {round((time.time() - start_t),3)}')
 
     return model, accu_grads, moments, losses
 
@@ -324,6 +328,8 @@ def train_adam(model, accu_grads, moments, data, epoch_nr, display_details=False
     losses = []
 
     for epoch in range(epochs):
+
+        start_t = time.time()
 
         epoch_loss = np.zeros(Vanilla.hm_outs)
 
@@ -368,6 +374,7 @@ def train_adam(model, accu_grads, moments, data, epoch_nr, display_details=False
         if display_details:
             if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
             else: res.write_loss(epoch_loss)
+            print(f'epoch {epoch+1} / {num_epochs} completed. PET: {round((time.time() - start_t),3)}')
 
     return model, accu_grads, moments, losses
 
@@ -392,7 +399,7 @@ def process_fn_alt(fn_input):
         resp3.append(resp_t[3])    # response[:,3]
 
     loss_nodes = np.array([
-        loss_fn1(resp0, trg[0], will_softmax=False),
+        loss_fn1(resp0, trg[0]),
         loss_fn2(resp1, trg[1]),
         loss_fn2(resp2, trg[2]),
         loss_fn2(resp3, trg[3])])

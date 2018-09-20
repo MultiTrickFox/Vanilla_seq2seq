@@ -328,9 +328,9 @@ def prop_func(model, sequence_t, context_t, out_context_t):
     outstate_4 = attention_4 * torch.tanh(t_states[-1])
 
     output1 = torch.sigmoid(torch.matmul(model[-1]['wo_1'], outstate_1) + model[-1]['bo_1'])
-    output2 = torch.matmul(model[-1]['wo_2'], outstate_2) + model[-1]['bo_2']
-    output3 = torch.matmul(model[-1]['wo_3'], outstate_3) + model[-1]['bo_3']
-    output4 = torch.matmul(model[-1]['wo_4'], outstate_4) + model[-1]['bo_4']
+    output2 = torch.sigmoid(torch.matmul(model[-1]['wo_2'], outstate_2) + model[-1]['bo_2'])
+    output3 = torch.sigmoid(torch.matmul(model[-1]['wo_3'], outstate_3) + model[-1]['bo_3'])
+    output4 = torch.sigmoid(torch.matmul(model[-1]['wo_4'], outstate_4) + model[-1]['bo_4'])
 
     return t_states, [outstate_1, outstate_2, outstate_3, outstate_4], [output1, output2, output3, output4]
 
@@ -394,25 +394,31 @@ def forward_prop(model, sequence, context=None, gen_seed=None, gen_iterations=No
 def custom_softmax(output_seq):
     return (lambda e_x: e_x / e_x.sum())(torch.exp(output_seq))
 
-def custom_entropy(output_seq, label_seq, will_softmax=True):
+def custom_entropy(output_seq, label_seq, will_softmax=False):
     sequence_losses = []
 
     for t in range(len(label_seq)):
         lbl = custom_softmax(label_seq[t]) if will_softmax else label_seq[t]
         pred = custom_softmax(output_seq[t]) if will_softmax else output_seq[t]
 
-        sequence_losses.append((lbl * torch.log(pred)).mean())
+        sequence_losses.append(-(lbl * torch.log(pred)).sum())
 
     return sequence_losses
 
-def custom_mse(output_seq, label_seq):
+def custom_distance(output_seq, label_seq):
     sequence_losses = []
 
     for t in range(len(label_seq)):
         lbl = label_seq[t]
         pred = output_seq[t]
 
-        sequence_losses.append(-(lbl - pred).mean()) # why not ; lbl - pred ** 3     -faster convergence?
+        loss = lbl - pred
+        # loss = torch.abs(lbl - pred)
+        # loss = (lbl - pred)**2
+        # loss = (lbl - pred)**3
+        # loss = torch.abs(((lbl - pred) ** 3))
+
+        sequence_losses.append(loss.sum())
 
     return sequence_losses
 
@@ -434,13 +440,13 @@ import res
 stop_dur = res.SPLIT_DURATION
 def stop_cond(output_t):
 
-    notes = output_t[0]
+    # notes = output_t[0]
     durations = output_t[2]
 
-    sel_notes = [_ for _,e in enumerate(notes) if e.item() >= 0.1]
+    # sel_notes = [_ for _,e in enumerate(notes) if e.item() >= 0.1]
 
-    for note in sel_notes:
-        if note == 12: return True
+    # for note in sel_notes:
+    #     if note == 12: return True
 
     for dur in durations:
         if float(dur) >= stop_dur: return True

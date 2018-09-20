@@ -15,7 +15,7 @@ MAX_DURATION = 8.0 ; SPLIT_DURATION = 2.0
 MAX_VOLUME = 127
 
 
-show_passed_exceptions = True
+show_passed_exceptions = False
 
 
 def preprocess():
@@ -28,10 +28,10 @@ def preprocess():
     raw_files = glob.glob("samples/*.mid")
     imported_files = []
 
-    global show_passed_exceptions
-    if show_passed_exceptions and \
-       input('Show Passed Errors: (Y/N)').lower() != 'y':
-        show_passed_exceptions = False
+    # global show_passed_exceptions
+    # if show_passed_exceptions and \
+    #    input('Show Passed Errors (Y/N): ').lower() != 'y':
+    #     show_passed_exceptions = False
 
     print(f'\nDetected CPU(s): {cpu_count()}\n')
 
@@ -159,16 +159,16 @@ def vectorize_element(element):
                 dur_vect[note_id] += float(element.duration.quarterLength)
 
 
-        # normalization & fixes
+        # normalization & final-fixes
 
         vocab_sum = sum(vocab_vect)
 
         if vocab_sum == 0: return None, None, None, None
 
         if vocab_sum != 1: vocab_vect = [float(e/vocab_sum) for e in vocab_vect]
-        # oct_vect = [float(e/MAX_OCTAVE) for e in oct_vect if e != 0]
-        # dur_vect = [float(e/MAX_DURATION) for e in dur_vect if e != 0]
-        # vol_vect = [float(e/MAX_VOLUME) for e in vol_vect if e != 0]
+        oct_vect = [round(e/MAX_OCTAVE, 3) for e in oct_vect]
+        dur_vect = [round(e/MAX_DURATION, 3) for e in dur_vect]
+        vol_vect = [round(e/MAX_VOLUME, 3) for e in vol_vect]
 
     except Exception as e:
         if show_passed_exceptions: print('Element', element, 'passed Error:', e)
@@ -217,7 +217,7 @@ vocab_size = len(note_reverse_dict)
 
 def split_cond(dur_vect):
     for dur in dur_vect:
-        if dur >= SPLIT_DURATION: return True
+        if dur >= SPLIT_DURATION / MAX_DURATION: return True
     return False
 
 def import_fn(raw_file):
