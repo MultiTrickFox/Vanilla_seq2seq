@@ -109,9 +109,9 @@ def ai_2_human(out_t, chordMode=True):
         sel_vocabs = [torch.argmax(vocabs).item()]
 
     for vocab in sel_vocabs:
-        sel_octs.append(round(float(octaves[vocab]) * max_octave), 3)
-        sel_durs.append(round(float(durations[vocab]) * max_duration), 3)
-        sel_vols.append(round(float(volumes[vocab]) * max_volume), 3)
+        sel_octs.append(round(float(octaves[vocab]) * max_octave, 3))
+        sel_durs.append(round(float(durations[vocab]) * max_duration, 3))
+        sel_vols.append(round(float(volumes[vocab]) * max_volume, 3))
 
     return sel_vocabs, sel_octs, sel_durs, sel_vols
 

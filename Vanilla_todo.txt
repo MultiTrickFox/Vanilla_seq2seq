@@ -20,12 +20,3 @@
 		> user defines:
 			total_epochs
 			learning_rate
-
-
-
-
-
-- others:
-
-    forws_prop functions convert to tensor themselves
-    delete conversion from process_functions and interact
