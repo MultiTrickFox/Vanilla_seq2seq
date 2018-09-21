@@ -5,7 +5,7 @@ import utils
 from utils                      \
     import forward_prop_interact \
     as ask                        \
-                                        # todo: output'lari context olarak dondurup sarki yazma, hm_bars_reply
+
 # import time
 import torch
 from torch                            \
@@ -13,6 +13,11 @@ from torch                            \
 
 # from multiprocessing                    \
 #     import Process, Manager
+
+max_octave = res.MAX_OCTAVE
+max_duration = res.MAX_DURATION
+max_volume = res.MAX_VOLUME
+
 
 
 
@@ -33,6 +38,9 @@ def bootstrap():
 
 
     while True:
+
+        open('feedback.txt', "w+").close()
+        open('response.txt', "w+").close()
 
         inp_len = int(input('enter an Input Length: '))
         input_sequence = get_user_input(inp_len)
@@ -86,23 +94,24 @@ def bootstrap():
 # converters
 
 
-def ai_2_human(out_t, isSoftmaxed=False, chordMode=True):
+def ai_2_human(out_t, chordMode=True):
 
     vocabs, octaves, durations, volumes = out_t
 
-    sel_vocabs = []
-    sel_octs   = res.empty_vect.copy()
-    sel_durs   = res.empty_vect.copy()
-    sel_vols   = res.empty_vect.copy()
+    # sel_vocabs = []
+    sel_octs   = []
+    sel_durs   = []
+    sel_vols   = []
 
-    if chordMode and not isSoftmaxed:
+    if chordMode:
         sel_vocabs = [_ for _,e in enumerate(vocabs) if e.item() >= 0.1]
-    # if sel_vocabs == []: sel_vocabs = [torch.argmax(vocabs).item()]
+    else:
+        sel_vocabs = [torch.argmax(vocabs).item()]
 
     for vocab in sel_vocabs:
-        sel_octs[vocab] += float(octaves[vocab])
-        sel_durs[vocab] += float(durations[vocab])
-        sel_vols[vocab] += float(volumes[vocab])
+        sel_octs.append(round(float(octaves[vocab]) * max_octave), 3)
+        sel_durs.append(round(float(durations[vocab]) * max_duration), 3)
+        sel_vols.append(round(float(volumes[vocab]) * max_volume), 3)
 
     return sel_vocabs, sel_octs, sel_durs, sel_vols
 
@@ -129,6 +138,15 @@ def human_2_ai(data):
             oct_vect[note]   /= 2
             dur_vect[note]   /= 2
             vol_vect[note]   /= 2
+
+    # normalization & fixes
+
+    vocab_sum = sum(vocab_vect)
+
+    if vocab_sum != 1: vocab_vect = [e/vocab_sum for e in vocab_vect]
+    oct_vect = [e/max_octave for e in oct_vect]
+    dur_vect = [e/max_duration for e in dur_vect]
+    vol_vect = [e/max_volume for e in vol_vect]
 
     return vocab_vect, oct_vect, dur_vect, vol_vect
 

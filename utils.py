@@ -16,6 +16,8 @@ hm_ins = Vanilla.hm_ins
 hm_outs = Vanilla.hm_outs
 is_stop_cond = Vanilla.stop_cond
 
+MAX_PROP_TIME = 40
+
 grad_save_time = 15
 
 
@@ -422,7 +424,7 @@ def forward_prop_interact(model, sequence, context=None, gen_seed=None):
     outputs = [gen_seed] if gen_seed is not None else [outputs[-1]]
 
     t = 0
-    while not is_stop_cond(outputs[-1]):
+    while not is_stop_cond(outputs[-1]) and t < MAX_PROP_TIME:
 
         t_states, out_state, output = Vanilla.prop_func(model, outputs[-1], states[-1], out_states[-1])
         write_neural_state(t_states)
@@ -540,8 +542,6 @@ def load_accugrads_adv(model, model_id=None, from_basic_accugrads=False):  # = T
 
 
 def write_neural_state(tstates):
-    try: os.remove('feedback.txt')
-    except: pass
     with open('feedback.txt','a') as file:
         for _, layer in enumerate(tstates):
             states = []
@@ -552,8 +552,6 @@ def write_neural_state(tstates):
             os.fsync(file.fileno())
 
 def write_response(response):
-    try: os.remove('response.txt')
-    except: pass
     with open('response.txt','a') as file:
         file.write(str(response)+'\n')
         file.flush()

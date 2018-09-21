@@ -16,13 +16,13 @@ learning_rate_2 = 0.01
 
     # model details
 
-default_layers = [5, 8, 7]
+default_layers = [5, 8, 6]
 
 
     # data details
 
 data_path = 'samples.pkl'
-data_size = 20_000
+data_size = 30_000
 batch_size = 500
 
 
@@ -252,6 +252,7 @@ if __name__ == '__main__':
     torch.set_default_tensor_type('torch.FloatTensor')
     trainer.batch_size = batch_size
     IOdims = res.vocab_size
+    res.initialize_loss_txt()
 
     model = res.load_model()
     if model is None: model = Vanilla.create_model(IOdims,default_layers,IOdims)
