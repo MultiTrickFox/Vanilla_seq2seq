@@ -265,6 +265,7 @@ def get_clock(): return time.asctime(time.localtime(time.time())).split(' ')[3]
 def run_simple_parenting(data):
 
     # initialize model
+    IOdims = res.vocab_size
     model = res.load_model()
     if model is None: model = Vanilla.create_model(IOdims, default_layers, IOdims)
 
@@ -288,6 +289,7 @@ def run_simple_parenting(data):
 def run_advanced_parenting(data):
 
     # initialize model
+    IOdims = res.vocab_size
     model = res.load_model()
     if model is None: model = Vanilla.create_model(IOdims, default_layers, IOdims)
 
@@ -316,7 +318,7 @@ if __name__ == '__main__':
 
     res.initialize_loss_txt() ; torch.set_default_tensor_type('torch.FloatTensor')
 
-    data = get_data()
+    data = get_data(); IOdims = res.vocab_size
 
     trainer.batch_size = batch_size
 
@@ -328,12 +330,13 @@ if __name__ == '__main__':
 
             run_advanced_parenting(data)
 
-    else:
+    else: # start advanced
 
         run_advanced_parenting(data)
 
-
     utils.plot_loss_txts()
+
+
 
 
 
@@ -348,22 +351,33 @@ def parent_bootstrap(hm_data,
                      decay_batch_sizes=True,
                      quicksaves = True):
 
-    global total_epochs ; total_epochs = total_ep
-    global data_size ; data_size = hm_data
-    global batch_size ; batch_size = batches_of
-    global learning_rate_1 ; learning_rate_1 = lr_1
-    global learning_rate_2 ; learning_rate_2 = lr_2
-    global layers ; layers = structure
-    global start_advanced ; start_advanced = begin_advanced
-    global further_parenting ; further_parenting = extra_care
-    global reducing_batch_sizes ; reducing_batch_sizes = decay_batch_sizes
-    global save_intermediate_model ; save_intermediate_model = quicksaves
+    global total_epochs
+    total_epochs = total_ep
+    global data_size
+    data_size = hm_data
+    global batch_size
+    batch_size = batches_of
+    global learning_rate_1
+    learning_rate_1 = lr_1
+    global learning_rate_2
+    learning_rate_2 = lr_2
+    global layers
+    layers = structure
+    global start_advanced
+    start_advanced = begin_advanced
+    global further_parenting
+    further_parenting = extra_care
+    global reducing_batch_sizes
+    reducing_batch_sizes = decay_batch_sizes
+    global save_intermediate_model
+    save_intermediate_model = quicksaves
 
     trainer.batch_size = batch_size ; res.initialize_loss_txt()
-
     data = get_data()
 
     if not start_advanced:
         run_simple_parenting(data)
+
         if further_parenting: run_advanced_parenting(data)
+        
     else: run_advanced_parenting(data)
