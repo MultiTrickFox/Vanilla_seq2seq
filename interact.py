@@ -21,6 +21,7 @@ max_volume = res.MAX_VOLUME
 
 
 
+
 def bootstrap():
 
 
@@ -39,7 +40,7 @@ def bootstrap():
 
     while True:
 
-        open('feedback.txt', "w+").close()
+        open('states.txt', "w+").close()
         open('response.txt', "w+").close()
 
         inp_len = int(input('enter an Input Length: '))

@@ -542,18 +542,20 @@ def load_accugrads_adv(model, model_id=None, from_basic_accugrads=False):  # = T
 
 
 def write_neural_state(tstates):
-    with open('feedback.txt','a') as file:
+    with open('states.txt','a') as file:
         for _, layer in enumerate(tstates):
             states = []
             for state in layer:
                 states.append(float(state.sum()))
-            file.write('{{"metric": "States{}", "value": {}}}'.format(_, states)+'\n')
+            file.write(f'{_}:{states} \n')
             file.flush()
             os.fsync(file.fileno())
 
 def write_response(response):
     with open('response.txt','a') as file:
-        file.write(str(response)+'\n')
+        for resp in response[0]:
+            file.write(str(float(resp))+' ')
+        file.write('\n')
         file.flush()
         os.fsync(file.fileno())
 
