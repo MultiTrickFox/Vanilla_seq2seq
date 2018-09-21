@@ -582,11 +582,12 @@ def plot_loss_txts(hm_mins_refresh=10):
     loss_4_path = 'loss_4.txt'  # input('import loss_4: ')
 
     style.use('dark_background')
-    figures = [plot.figure() for _ in range(4)]
-    axises = [fig.add_subplot(1, 1, 1) for fig in figures]
+    fig = plot.figure()
+    axis = fig.add_subplot(1, 1, 1)
 
-    def animate_0(i):
+    def animate(i):
         epochs, losses = [], []
+        
         with open(loss_1_path, 'r') as f:
             for line in f.readlines():
                 epoch, loss = line.split(',')
@@ -594,51 +595,39 @@ def plot_loss_txts(hm_mins_refresh=10):
                 if loss != 999999999:
                     epochs.append(int(epoch))
                     losses.append(int(loss))
-        axises[0].clear()
-        axises[0].plot(epochs, losses)
-
-    def animate_1(i):
-        epochs, losses = [], []
+                    
         with open(loss_2_path, 'r') as f:
             for line in f.readlines():
                 epoch, loss = line.split(',')
                 loss = float(loss[:-1])
                 if loss != 999999999:
-                    epochs.append(int(epoch))
                     losses.append(int(loss))
-        axises[1].clear()
-        axises[1].plot(epochs, losses)
 
-    def animate_2(i):
-        epochs, losses = [], []
         with open(loss_3_path, 'r') as f:
             for line in f.readlines():
                 epoch, loss = line.split(',')
                 loss = float(loss[:-1])
                 if loss != 999999999:
-                    epochs.append(int(epoch))
                     losses.append(int(loss))
-        axises[2].clear()
-        axises[2].plot(epochs, losses)
-
-    def animate_3(i):
-        epochs, losses = [], []
+                    
         with open(loss_4_path, 'r') as f:
             for line in f.readlines():
                 epoch, loss = line.split(',')
                 loss = float(loss[:-1])
                 if loss != 999999999:
-                    epochs.append(int(epoch))
                     losses.append(int(loss))
-        axises[3].clear()
-        axises[3].plot(epochs, losses)
+                    
+        axis.clear()
+        axis.plot(epochs, losses[:len(epochs)], 'g')
+        axis.plot(epochs, losses[len(epochs):len(epochs) * 2], 'b')
+        axis.plot(epochs, losses[len(epochs) * 2: len(epochs) * 3], 'r')
+        axis.plot(epochs, losses[len(epochs) * 3: len(epochs) * 4], 'y')
 
-    refresh_time = 1000 * 60 * hm_mins_refresh
 
-    ani_0 = animation.FuncAnimation(figures[0], animate_0, refresh_time)
-    ani_1 = animation.FuncAnimation(figures[1], animate_1, refresh_time)
-    ani_2 = animation.FuncAnimation(figures[2], animate_2, refresh_time)
-    ani_3 = animation.FuncAnimation(figures[3], animate_3, refresh_time)
+    ani = animation.FuncAnimation(fig, animate, hm_mins_refresh)
+
+    var = plot.gcf()
+    var.canvas.set_window_title('')
 
     plot.show()
 
