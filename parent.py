@@ -28,7 +28,9 @@ batch_size = 500
 
     # training details
 
-run_advanced = False
+further_parenting = True
+
+start_advanced = False
 
 trainer.drop_in  = 0.0
 trainer.drop_mid = 0.0
@@ -135,7 +137,11 @@ def simple_parenting(model, accugrads, data):
 
                     branch_prevStep = branch_thisStep
 
-                branch_ctr +=1
+                branch_ctr += 1
+
+                print(f'@ {get_clock()} : '
+                      f'Branch {branch_ctr} / {branch_ctr_max} generated. ')
+
 
     del checkpoints[0]
     return checkpoints
@@ -232,6 +238,10 @@ def advanced_parenting(model, accugrads, moments, data):
 
                 branch_ctr +=1
 
+                print(f'@ {get_clock()} : '
+                      f'Branch {branch_ctr} / {branch_ctr_max} geenrated. ')
+
+
     del checkpoints[0]
     return checkpoints
 
@@ -243,7 +253,71 @@ def get_data(): return res.load_data(data_path, data_size)
 
 def get_clock(): return time.asctime(time.localtime(time.time())).split(' ')[3]
 
+import multiprocessing
+cpu_count = multiprocessing.cpu_count()
+print('\n'
+      f'** Parenting Started **\n'
+      f'Sample Amount: {data_size}\n'
+      f'Batch Size: {batch_size}\n'
+      f'Workers: {cpu_count}\n'
+      f'Learning Rate _simple: {learning_rate_1}\n'
+      f'Learning Rate _advanced: {learning_rate_2}\n'
+      f'Epochs: {total_epochs}\n')
 
+
+
+
+
+# parent runners
+
+
+def run_simple_parenting(data):
+
+    # initialize model
+    model = res.load_model()
+    if model is None: model = Vanilla.create_model(IOdims, default_layers, IOdims)
+
+    # initialize metadata
+    accugrads = trainer.load_accugrads(model)
+
+    # get checkpoints
+    checkpoints = simple_parenting(model, accugrads, data)
+
+    # extract metadata
+    model = checkpoints[-1][0]
+    accugrads = checkpoints[-1][1]
+    losses = [list(cp[-1]) for cp in checkpoints]
+
+    # save metadata
+    res.save_model(model)
+    trainer.save_accugrads(accugrads)
+    [res.write_loss(loss, as_txt=True, epoch_nr=_) for _, loss in enumerate(losses)]
+
+
+def run_advanced_parenting(data):
+
+    # initialize model
+    model = res.load_model()
+    if model is None: model = Vanilla.create_model(IOdims, default_layers, IOdims)
+
+    # initalize metadata
+    accugrads = trainer.load_accugrads(model)
+    moments = trainer.load_moments(model)
+
+    # get checkpoints
+    checkpoints = advanced_parenting(model, accugrads, moments, data)
+
+    # extract metadata
+    model = checkpoints[-1][0]
+    accugrads = checkpoints[-1][1]
+    moments = checkpoints[-1][2]
+    losses = [list(cp[-1]) for cp in checkpoints]
+
+    # save metadata
+    res.save_model(model)
+    trainer.save_accugrads(accugrads)
+    trainer.save_moments(moments)
+    [res.write_loss(loss, as_txt=True, epoch_nr=_) for _, loss in enumerate(losses)]
 
 
 
@@ -254,55 +328,20 @@ if __name__ == '__main__':
     IOdims = res.vocab_size
     res.initialize_loss_txt()
 
-    model = res.load_model()
-    if model is None: model = Vanilla.create_model(IOdims,default_layers,IOdims)
-
     data = get_data()
 
 
-        # simple parenting
+    if not start_advanced:
 
-    if not run_advanced:
+        run_simple_parenting(data)
 
-            # initialize metadata
-        accugrads = trainer.load_accugrads(model)
+        if further_parenting:
 
-            # get checkpoints
-        checkpoints = simple_parenting(model, accugrads, data)
-
-            # extract metadata
-        model = checkpoints[-1][0]
-        accugrads = checkpoints[-1][1]
-        losses = [list(cp[-1]) for cp in checkpoints]
-
-            # save metadata
-        res.save_model(model)
-        trainer.save_accugrads(accugrads)
-        [res.write_loss(loss, as_txt=True, epoch_nr=_) for _, loss in enumerate(losses)]
-
-
-        # advanced parenting
+            run_advanced_parenting(data)
 
     else:
 
-            # initalize metada
-        accugrads = trainer.load_accugrads(model)
-        moments = trainer.load_moments(model)
-
-            # get checkpoints
-        checkpoints = advanced_parenting(model, accugrads, moments, data)
-
-            # extract metadata
-        model = checkpoints[-1][0]
-        accugrads = checkpoints[-1][1]
-        moments = checkpoints[-1][2]
-        losses = [list(cp[-1]) for cp in checkpoints]
-
-            # save metadata
-        res.save_model(model)
-        trainer.save_accugrads(accugrads)
-        trainer.save_moments(moments)
-        [res.write_loss(loss, as_txt=True, epoch_nr=_) for _, loss in enumerate(losses)]
+        run_advanced_parenting(data)
 
 
 
