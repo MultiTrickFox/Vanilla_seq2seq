@@ -314,12 +314,11 @@ def run_advanced_parenting(data):
 
 if __name__ == '__main__':
 
-    torch.set_default_tensor_type('torch.FloatTensor')
-    trainer.batch_size = batch_size
-    IOdims = res.vocab_size
-    res.initialize_loss_txt()
+    res.initialize_loss_txt() ; torch.set_default_tensor_type('torch.FloatTensor')
 
     data = get_data()
+
+    trainer.batch_size = batch_size
 
     if not start_advanced:
 
@@ -335,3 +334,36 @@ if __name__ == '__main__':
 
 
     utils.plot_loss_txts()
+
+
+
+def parent_bootstrap(hm_data,
+                     batches_of,
+                     total_ep=20,
+                     lr_1=0.001,
+                     lr_2=0.01,
+                     structure=(3, 5, 4),
+                     begin_advanced=False,
+                     extra_care=False,
+                     decay_batch_sizes=True,
+                     quicksaves = True):
+
+    global total_epochs ; total_epochs = total_ep
+    global data_size ; data_size = hm_data
+    global batch_size ; batch_size = batches_of
+    global learning_rate_1 ; learning_rate_1 = lr_1
+    global learning_rate_2 ; learning_rate_2 = lr_2
+    global layers ; layers = structure
+    global start_advanced ; start_advanced = begin_advanced
+    global further_parenting ; further_parenting = extra_care
+    global reducing_batch_sizes ; reducing_batch_sizes = decay_batch_sizes
+    global save_intermediate_model ; save_intermediate_model = quicksaves
+
+    trainer.batch_size = batch_size ; res.initialize_loss_txt()
+
+    data = get_data()
+
+    if not start_advanced:
+        run_simple_parenting(data)
+        if further_parenting: run_advanced_parenting(data)
+    else: run_advanced_parenting(data)
