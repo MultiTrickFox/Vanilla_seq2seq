@@ -568,6 +568,79 @@ def get_latest_response():
 #       Other
 
 
+def plot_loss_txts(hm_mins_refresh=10):
+
+    from matplotlib import style
+    import matplotlib.pyplot as plot
+    import matplotlib.animation as animation
+
+    loss_1_path = 'loss_1.txt'  # input('import loss_1: ')
+    loss_2_path = 'loss_2.txt'  # input('import loss_2: ')
+    loss_3_path = 'loss_3.txt'  # input('import loss_3: ')
+    loss_4_path = 'loss_4.txt'  # input('import loss_4: ')
+
+    style.use('dark_background')
+    figures = [plot.figure() for _ in range(4)]
+    axises = [fig.add_subplot(1, 1, 1) for fig in figures]
+
+    def animate_0(i):
+        epochs, losses = [], []
+        with open(loss_1_path, 'r') as f:
+            for line in f.readlines():
+                epoch, loss = line.split(',')
+                loss = float(loss[:-1])
+                if loss != 999999999:
+                    epochs.append(int(epoch))
+                    losses.append(int(loss))
+        axises[0].clear()
+        axises[0].plot(epochs, losses)
+
+    def animate_1(i):
+        epochs, losses = [], []
+        with open(loss_2_path, 'r') as f:
+            for line in f.readlines():
+                epoch, loss = line.split(',')
+                loss = float(loss[:-1])
+                if loss != 999999999:
+                    epochs.append(int(epoch))
+                    losses.append(int(loss))
+        axises[1].clear()
+        axises[1].plot(epochs, losses)
+
+    def animate_2(i):
+        epochs, losses = [], []
+        with open(loss_3_path, 'r') as f:
+            for line in f.readlines():
+                epoch, loss = line.split(',')
+                loss = float(loss[:-1])
+                if loss != 999999999:
+                    epochs.append(int(epoch))
+                    losses.append(int(loss))
+        axises[2].clear()
+        axises[2].plot(epochs, losses)
+
+    def animate_3(i):
+        epochs, losses = [], []
+        with open(loss_4_path, 'r') as f:
+            for line in f.readlines():
+                epoch, loss = line.split(',')
+                loss = float(loss[:-1])
+                if loss != 999999999:
+                    epochs.append(int(epoch))
+                    losses.append(int(loss))
+        axises[3].clear()
+        axises[3].plot(epochs, losses)
+
+    refresh_time = 1000 * 60 * hm_mins_refresh
+
+    ani_0 = animation.FuncAnimation(figures[0], animate_0, refresh_time)
+    ani_1 = animation.FuncAnimation(figures[1], animate_1, refresh_time)
+    ani_2 = animation.FuncAnimation(figures[2], animate_2, refresh_time)
+    ani_3 = animation.FuncAnimation(figures[3], animate_3, refresh_time)
+
+    plot.show()
+
+
 # import multiprocessing
 # class NoDaemonProcess(multiprocessing.Process):
 #     # make 'daemon' attribute always return False
@@ -581,3 +654,6 @@ def get_latest_response():
 # # because the latter is only a wrapper function, not a proper class.
 # class MyPool(multiprocessing.Pool):
 #     Process = NoDaemonProcess
+
+if __name__ == '__main__':
+    plot_loss_txts()

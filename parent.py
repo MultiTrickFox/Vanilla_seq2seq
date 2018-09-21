@@ -1,6 +1,7 @@
 import Vanilla
 import trainer
 import res
+import utils
 
 import time
 import torch
@@ -30,7 +31,7 @@ batch_size = 500
 
 start_advanced = False
 
-further_parenting = True
+further_parenting = False
 
 trainer.drop_in  = 0.0
 trainer.drop_mid = 0.0
@@ -333,5 +334,4 @@ if __name__ == '__main__':
         run_advanced_parenting(data)
 
 
-
-
+    utils.plot_loss_txts()
