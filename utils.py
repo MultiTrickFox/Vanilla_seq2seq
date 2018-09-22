@@ -547,7 +547,8 @@ def write_neural_state(tstates):
             states = []
             for state in layer:
                 states.append(float(state.sum()))
-            file.write(f'{_}:{states} \n')
+            arr = sum([str(state) + ' ' for state in states])
+            file.write(f'{_+1}:{arr} \n')
             file.flush()
             os.fsync(file.fileno())
 
@@ -627,7 +628,7 @@ def plot_loss_txts(hm_mins_refresh=2):
         axis.plot(epochs, losses[len(epochs):len(epochs) * 2], 'g', label='Octaves')
         axis.plot(epochs, losses[len(epochs) * 3: len(epochs) * 4], 'y', label='Velocities')
 
-        plot.legend()
+        plot.legend(bbox_to_anchor=(1.1, 1.1), loc=1, borderaxespad=0.)
 
     ani = animation.FuncAnimation(fig, animate, hm_mins_refresh)
     var = plot.gcf()

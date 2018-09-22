@@ -4,6 +4,8 @@ import res
 import utils
 
 import time
+import subprocess
+
 import torch
 import numpy as np
 
@@ -32,6 +34,8 @@ batch_size = 500
 start_advanced = False
 
 further_parenting = False
+
+shutdown_after_complete = True
 
 trainer.drop_in  = 0.0
 trainer.drop_mid = 0.0
@@ -71,7 +75,7 @@ def simple_parenting(model, accugrads, data):
 
         # begin parenting
 
-    print('> Simple Parent running...')
+    print(f'\n@ {get_clock()} : Simple Parent running...')
 
     while successful_epochs < total_epochs:
 
@@ -172,7 +176,7 @@ def advanced_parenting(model, accugrads, moments, data):
 
         # begin parenting
 
-    print('> Advanced Parent running...')
+    print(f'\n@ {get_clock()} : Advanced Parent running...')
 
     while successful_epochs < total_epochs:
 
@@ -326,19 +330,24 @@ if __name__ == '__main__':
 
     trainer.batch_size = batch_size
 
-    if not start_advanced:
+    if not start_advanced:      # start simple
 
         run_simple_parenting(data)
 
-        if further_parenting:
+        if further_parenting:   # then further parent
 
             run_advanced_parenting(data)
 
-    else: # start advanced
+    else:                       # OR start advanced
 
         run_advanced_parenting(data)
 
-    utils.plot_loss_txts()
+    # end-of-parent
+
+    if not shutdown_after_complete:
+        utils.plot_loss_txts()
+    else:
+        subprocess.call(["shutdown","/s"])
 
 
 
