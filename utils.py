@@ -575,7 +575,7 @@ def plot_loss_txts(hm_mins_refresh=2):
     from matplotlib import style
     import matplotlib.pyplot as plot
     import matplotlib.animation as animation
-    import matplotlib.patches as mpatches
+    # import matplotlib.patches as mpatches
     import random
 
     loss_1_path = 'loss_1.txt'  # input('import loss_1: ')
@@ -586,7 +586,7 @@ def plot_loss_txts(hm_mins_refresh=2):
     fig = plot.figure()
     axis = fig.add_subplot(1, 1, 1)
 
-    theme = random.choice(['seaborn', 'Solarize_Light2', 'fivethirtyeight'])
+    theme = random.choice(['Solarize_Light2', 'fivethirtyeight'])
     style.use(theme)
 
     def animate(i):
@@ -622,21 +622,16 @@ def plot_loss_txts(hm_mins_refresh=2):
                     losses.append(int(loss))
                     
         axis.clear()
-        axis.plot(epochs, losses[:len(epochs)], 'red')
-        axis.plot(epochs, losses[len(epochs):len(epochs) * 2], 'blue')
-        axis.plot(epochs, losses[len(epochs) * 2: len(epochs) * 3], 'green')
-        axis.plot(epochs, losses[len(epochs) * 3: len(epochs) * 4], 'yellow')
+        axis.plot(epochs, losses[:len(epochs)], 'r', label='Vocabulary')
+        axis.plot(epochs, losses[len(epochs) * 2: len(epochs) * 3], 'b', label='Rhythm')
+        axis.plot(epochs, losses[len(epochs):len(epochs) * 2], 'g', label='Octaves')
+        axis.plot(epochs, losses[len(epochs) * 3: len(epochs) * 4], 'y', label='Velocities')
+
+        plot.legend()
 
     ani = animation.FuncAnimation(fig, animate, hm_mins_refresh)
-
     var = plot.gcf()
     var.canvas.set_window_title('Loss Plot')
-
-    red_patch = mpatches.Patch(color='red', label='Vocabulary')
-    green_patch = mpatches.Patch(color='green', label='Octaves')
-    blue_patch = mpatches.Patch(color='blue', label='Rhythm')
-    yellow_patch = mpatches.Patch(color='yellow', label='Velocities')
-    plot.legend(handles=[red_patch,green_patch,blue_patch,yellow_patch])
 
     plot.show()
 
