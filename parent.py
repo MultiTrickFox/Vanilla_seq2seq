@@ -12,7 +12,7 @@ import numpy as np
 
     # parent details
 
-total_epochs = 20
+total_epochs = 10
 learning_rate_1 = 0.001
 learning_rate_2 = 0.01
 
@@ -26,7 +26,7 @@ default_layers = [5, 10, 8]
 
 data_path = 'samples.pkl'
 data_size = 30_000
-batch_size = 500
+batch_size = 200
 
 
     # training details
@@ -354,7 +354,7 @@ if __name__ == '__main__':
 
 
 def parent_bootstrap(hm_data,
-                     batches_of,
+                     batches_of=-99,
                      total_ep=20,
                      lr_1=0.001,
                      lr_2=0.01,
@@ -362,7 +362,8 @@ def parent_bootstrap(hm_data,
                      begin_advanced=False,
                      extra_care=False,
                      decay_batch_sizes=True,
-                     quicksaves = True):
+                     quicksaves=True,
+                     quality='medium'):
 
     global total_epochs 
     total_epochs = total_ep
@@ -384,6 +385,19 @@ def parent_bootstrap(hm_data,
     reducing_batch_sizes = decay_batch_sizes
     global save_intermediate_model 
     save_intermediate_model = quicksaves
+
+    # min_data = 20_000 ; high_quality :  # medium_quality :  # low_quality :
+
+    import multiprocessing
+    cpu_count = multiprocessing.cpu_count()
+
+
+    if quality == 'medium':
+        batch_size = cpu_count * 3
+    elif quality == 'high':
+        batch_size = cpu_count * 2
+    elif quality == 'low':
+        batch_size = cpu_count * 5
 
     trainer.batch_size = batch_size
     res.initialize_loss_txt()
