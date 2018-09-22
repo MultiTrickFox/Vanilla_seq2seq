@@ -17,13 +17,13 @@ learning_rate_2 = 0.01
 
     # model details
 
-default_layers = [5, 8, 6]
+default_layers = [5, 10, 8]
 
 
     # data details
 
 data_path = 'samples.pkl'
-data_size = 10_000
+data_size = 30_000
 batch_size = 500
 
 
@@ -70,6 +70,8 @@ def simple_parenting(model, accugrads, data):
 
 
         # begin parenting
+
+    print('> Simple Parent running...')
 
     while successful_epochs < total_epochs:
 
@@ -169,6 +171,8 @@ def advanced_parenting(model, accugrads, moments, data):
 
 
         # begin parenting
+
+    print('> Advanced Parent running...')
 
     while successful_epochs < total_epochs:
 

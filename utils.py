@@ -570,20 +570,24 @@ def get_latest_response():
 #       Other
 
 
-def plot_loss_txts(hm_mins_refresh=10):
+def plot_loss_txts(hm_mins_refresh=2):
 
     from matplotlib import style
     import matplotlib.pyplot as plot
     import matplotlib.animation as animation
+    import matplotlib.patches as mpatches
+    import random
 
     loss_1_path = 'loss_1.txt'  # input('import loss_1: ')
     loss_2_path = 'loss_2.txt'  # input('import loss_2: ')
     loss_3_path = 'loss_3.txt'  # input('import loss_3: ')
     loss_4_path = 'loss_4.txt'  # input('import loss_4: ')
 
-    style.use('dark_background')
     fig = plot.figure()
     axis = fig.add_subplot(1, 1, 1)
+
+    theme = random.choice(['seaborn', 'Solarize_Light2', 'fivethirtyeight'])
+    style.use(theme)
 
     def animate(i):
         epochs, losses = [], []
@@ -618,16 +622,21 @@ def plot_loss_txts(hm_mins_refresh=10):
                     losses.append(int(loss))
                     
         axis.clear()
-        axis.plot(epochs, losses[:len(epochs)], 'g')
-        axis.plot(epochs, losses[len(epochs):len(epochs) * 2], 'b')
-        axis.plot(epochs, losses[len(epochs) * 2: len(epochs) * 3], 'r')
-        axis.plot(epochs, losses[len(epochs) * 3: len(epochs) * 4], 'y')
-
+        axis.plot(epochs, losses[:len(epochs)], 'red')
+        axis.plot(epochs, losses[len(epochs):len(epochs) * 2], 'blue')
+        axis.plot(epochs, losses[len(epochs) * 2: len(epochs) * 3], 'green')
+        axis.plot(epochs, losses[len(epochs) * 3: len(epochs) * 4], 'yellow')
 
     ani = animation.FuncAnimation(fig, animate, hm_mins_refresh)
 
     var = plot.gcf()
-    var.canvas.set_window_title('')
+    var.canvas.set_window_title('Loss Plot')
+
+    red_patch = mpatches.Patch(color='red', label='Vocabulary')
+    green_patch = mpatches.Patch(color='green', label='Octaves')
+    blue_patch = mpatches.Patch(color='blue', label='Rhythm')
+    yellow_patch = mpatches.Patch(color='yellow', label='Velocities')
+    plot.legend(handles=[red_patch,green_patch,blue_patch,yellow_patch])
 
     plot.show()
 
