@@ -12,14 +12,14 @@ import numpy as np
 
     # parent details
 
-total_epochs = 10
+total_epochs = 20
 learning_rate_1 = 0.001
 learning_rate_2 = 0.01
 
 
     # model details
 
-default_layers = [5, 10, 8]
+default_layers = [20, 30, 25]
 
 
     # data details

@@ -20,7 +20,7 @@ from Vanilla                         \
 from Vanilla                            \
     import custom_distance               \
     as loss_fn2
-loss_fn1 = loss_fn2   # hybrid-loss offline.
+loss_fn = loss_fn2   # hybrid-loss offline.
 
 from Vanilla                                 \
     import update_model_rmsprop               \
@@ -36,7 +36,7 @@ layer_sizes = [5, 8, 7] # [8, 12, 10] # [2, 4, 5] # [3, 5, 4]
 epochs = 20
 learning_rate = 0.001
 
-data_size = 20_000 ; batch_size = 500
+data_size = 50 ; batch_size = 50
 data_path = 'samples.pkl'
 
 train_basic = True
@@ -146,27 +146,32 @@ def process_fn(fn_input):
     x_vocab, x_oct, x_dur, x_vol, y_vocab, y_oct, y_dur, y_vol = data
     generative_length = len(y_vocab)
 
-    inp = [Tensor(e) for e in [x_vocab, x_oct, x_dur, x_vol]]
-    trg = [Tensor(e) for e in [y_vocab, y_oct, y_dur, y_vol]]
+    inp, trg = [], []
+
+    for _ in range(len(x_vocab)):
+        vect = []
+        [vect.extend(e) for e in [x_vocab[_], x_oct[_], x_dur[_], x_vol[_]]]
+        inp.append(Tensor(vect))
+
+    for _ in range(len(y_vocab)):
+        vect = []
+        [vect.extend(e) for e in [y_vocab[_], y_oct[_], y_dur[_], y_vol[_]]]
+        trg.append(Tensor(vect))
 
     response = Vanilla.forward_prop(model, inp, gen_iterations=generative_length)
 
-    resp0, resp1, resp2, resp3 = [], [], [], []
-    for resp_t in response:
-        resp0.append(resp_t[0])    # response[:,0]
-        resp1.append(resp_t[1])    # response[:,1]
-        resp2.append(resp_t[2])    # response[:,2]
-        resp3.append(resp_t[3])    # response[:,3]
+    # resp0, resp1, resp2, resp3 = [], [], [], []
+    # for resp_t in response:
+    #     resp0.append(resp_t[0])    # response[:,0]
+    #     resp1.append(resp_t[1])    # response[:,1]
+    #     resp2.append(resp_t[2])    # response[:,2]
+    #     resp3.append(resp_t[3])    # response[:,3]
 
-    loss_nodes = [
-        loss_fn1(resp0, trg[0]),
-        loss_fn2(resp1, trg[1]),
-        loss_fn2(resp2, trg[2]),
-        loss_fn2(resp3, trg[3])]
+    loss_nodes = loss_fn(response, trg)
 
     Vanilla.update_gradients(loss_nodes)
 
-    loss = [float(sum(e)) for e in [loss_nodes[0], loss_nodes[1], loss_nodes[2], loss_nodes[3]]]
+    loss = float(sum(loss_nodes))
     # loss = [float(sum(node)) if _ == 0
     #         else -float(sum(node))
     #         for _, node in enumerate([loss_nodes[0], loss_nodes[1], loss_nodes[2], loss_nodes[3]])]
