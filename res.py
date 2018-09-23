@@ -353,6 +353,10 @@ def load_data(data_path, limit_size):
     # gc.collect(blocks)
     return data
 
+def get_datasize(data_path):
+    dataset = pickle_load(data_path)
+    return len(dataset[0][0])
+
 
 
 #   API for ai -> midi
