@@ -269,18 +269,18 @@ def custom_entropy(output_seq, label_seq, will_softmax=False):
 
     return sequence_losses
 
-def custom_distance(output_seq, label_seq):
+def custom_distance(output_seq, label_seq, cube=False):
     sequence_losses = []
 
     for t in range(len(label_seq)):
         lbl = label_seq[t]
         pred = output_seq[t]
 
-        loss = lbl - pred
         # loss = torch.abs(lbl - pred)
         # loss = (lbl - pred)**2
         # loss = (lbl - pred)**3
         # loss = torch.abs(((lbl - pred) ** 3))
+        loss = lbl - pred if not cube else (lbl - pred) ** 3
 
         sequence_losses.append(loss.sum())
 

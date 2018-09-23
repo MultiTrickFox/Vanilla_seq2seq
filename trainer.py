@@ -14,16 +14,8 @@ from torch.multiprocessing       \
     import Pool
 thisPool = Pool
 
-from Vanilla                         \
-    import custom_entropy             \
-    as loss_fn1
-from Vanilla                            \
-    import custom_distance               \
-    as loss_fn2
-loss_fn = loss_fn2   # hybrid-loss offline.
-
-from Vanilla                                 \
-    import update_model_rmsprop               \
+from Vanilla                          \
+    import update_model_rmsprop        \
     as optimize_model
 
 
@@ -55,6 +47,10 @@ adam_alpha_accugrad = 0.999
 drop_in = 0.0
 drop_mid = 0.0
 drop_out = 0.0
+
+loss_fn = Vanilla.custom_distance
+cube_distance = False
+# Vanilla.custom_entropy
 
     # details
 
@@ -167,7 +163,7 @@ def process_fn(fn_input):
     #     resp2.append(resp_t[2])    # response[:,2]
     #     resp3.append(resp_t[3])    # response[:,3]
 
-    loss_nodes = loss_fn(response, trg)
+    loss_nodes = loss_fn(response, trg, cube=cube_distance)
 
     Vanilla.update_gradients(loss_nodes)
 
@@ -416,25 +412,25 @@ def process_fn_alt(fn_input):
         resp2.append(resp_t[2])    # response[:,2]
         resp3.append(resp_t[3])    # response[:,3]
 
-    loss_nodes = np.array([
-        loss_fn1(resp0, trg[0]),
-        loss_fn2(resp1, trg[1]),
-        loss_fn2(resp2, trg[2]),
-        loss_fn2(resp3, trg[3])])
+    # loss_nodes = np.array([
+    #     loss_fn(resp0, trg[0]),
+    #     loss_fn(resp1, trg[1]),
+    #     lo(resp2, trg[2]),
+    #     loss_fn2(resp3, trg[3])])
 
     # loss = [float(sum(e)) for e in [loss_nodes[0], loss_nodes[1], loss_nodes[2], loss_nodes[3]]]
     loss = []
-    for _, node in enumerate(loss_nodes):
-        element = float(sum(node))
-        if _ == 0:
-            loss.append(element)
-        else:
-            loss.append(-element)
+    # for _, node in enumerate(loss_nodes):
+    #     element = float(sum(node))
+    #     if _ == 0:
+    #         loss.append(element)
+    #     else:
+    #         loss.append(-element)
+    #
+    # Vanilla.update_gradients(loss_nodes)
+    # model_grads = Vanilla.return_grads(model)
 
-    Vanilla.update_gradients(loss_nodes)
-    model_grads = Vanilla.return_grads(model)
-
-    return loss, model_grads
+    # return loss, model_grads
 
 
 

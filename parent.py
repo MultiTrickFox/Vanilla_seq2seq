@@ -19,7 +19,7 @@ learning_rate_2 = 0.01
 
     # model details
 
-default_layers = [20, 35, 25]
+default_layers = [16, 25, 20]
 
 
     # data details
@@ -38,7 +38,7 @@ further_parenting = False
 shutdown_after_complete = True
 
 trainer.drop_in  = 0.0
-trainer.drop_mid = 0.0
+trainer.drop_mid = 0.1
 trainer.drop_out = 0.0
 
 reducing_batch_sizes = True
@@ -90,8 +90,8 @@ def simple_parenting(model, accugrads, data):
             successful_epochs +=1
 
             print(f'@ {get_clock()} : '
-                  f'epoch {successful_epochs} / {total_epochs} completed. ')
-            res.write_loss(prevStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
+                  f'. epoch {successful_epochs} / {total_epochs} completed. ')
+            res.write_loss(thisStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
 
             if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
                 trainer.batch_size = int(trainer.batch_size * 4/5)
@@ -117,7 +117,7 @@ def simple_parenting(model, accugrads, data):
 
             while branch_ctr < branch_ctr_max:
 
-                prev_model, prev_accugrads, prev_loss = branch_prevStep
+                prev_model, prev_accugrads, prev_loss =   branch_prevStep
 
                 branch_thisStep = trainer.train_rms(prev_model, prev_accugrads, data) ; this_loss = branch_thisStep[-1]
 
@@ -132,8 +132,8 @@ def simple_parenting(model, accugrads, data):
                         successful_epochs +=1
 
                         print(f'@ {get_clock()} : '
-                              f'epoch {successful_epochs} / {total_epochs} completed. ')
-                        res.write_loss(branch_prevStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
+                              f'. epoch {successful_epochs} / {total_epochs} completed. ')
+                        res.write_loss(branch_thisStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
 
                         if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
                             trainer.batch_size = int(trainer.batch_size * 4/5)
@@ -150,7 +150,7 @@ def simple_parenting(model, accugrads, data):
                 branch_ctr += 1
 
                 print(f'@ {get_clock()} : '
-                      f'branch {branch_ctr} / {branch_ctr_max} generated. ')
+                      f'... branch {branch_ctr} / {branch_ctr_max} generated. ')
 
 
     del checkpoints[0]
@@ -191,8 +191,8 @@ def advanced_parenting(model, accugrads, moments, data):
             successful_epochs +=1
 
             print(f'@ {get_clock()} : '
-                  f'epoch {successful_epochs} / {total_epochs} completed.')
-            res.write_loss(prevStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
+                  f'. epoch {successful_epochs} / {total_epochs} completed.')
+            res.write_loss(thisStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
 
             if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
                 trainer.batch_size = int(trainer.batch_size * 4/5)
@@ -232,8 +232,8 @@ def advanced_parenting(model, accugrads, moments, data):
                         successful_epochs +=1
 
                         print(f'@ {get_clock()} : '
-                              f'epoch {successful_epochs} / {total_epochs} completed. ')
-                        res.write_loss(branch_prevStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
+                              f'. epoch {successful_epochs} / {total_epochs} completed. ')
+                        res.write_loss(branch_thisStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
 
                         if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
                             trainer.batch_size = int(trainer.batch_size * 4/5)
@@ -251,7 +251,7 @@ def advanced_parenting(model, accugrads, moments, data):
                 branch_ctr +=1
 
                 print(f'@ {get_clock()} : '
-                      f'branch {branch_ctr} / {branch_ctr_max} geenrated. ')
+                      f'... branch {branch_ctr} / {branch_ctr_max} generated. ')
 
 
     del checkpoints[0]
