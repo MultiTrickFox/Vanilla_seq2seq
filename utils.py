@@ -387,14 +387,15 @@ def write_neural_state(tstates):
             states = []
             for state in layer:
                 states.append(float(state.sum()))
-            arr = sum([str(state) + ' ' for state in states])
-            file.write(f'{_+1}:{arr} \n')
+            # arr = []  # todo: unlock
+            # [arr.extend(e) for e in [str(state) + ' ' for state in states]]
+            # file.write(f'{_+1}:{arr} \n')
             file.flush()
             os.fsync(file.fileno())
 
 def write_response(response):
     with open('response.txt','a') as file:
-        for resp in response[0]:
+        for resp in response:
             file.write(str(float(resp))+' ')
         file.write('\n')
         file.flush()

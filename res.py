@@ -64,13 +64,14 @@ def preprocess():
                 vol_seqs_X.extend(result[6])   ; vol_seqs_Y.extend(result[7])
         print()
 
-    print(f'Samples Collected: {len(vocab_seqs_X)}\n')
+    len_samples = len(vocab_seqs_X)
+    print(f'Samples Collected: {len_samples}\n')
 
     data = [
         [vocab_seqs_X, oct_seqs_X, dur_seqs_X, vol_seqs_X],
         [vocab_seqs_Y, oct_seqs_Y, dur_seqs_Y, vol_seqs_Y]]
 
-    return data
+    return data, len_samples
 
 
 def parse_fn(stream):
@@ -358,11 +359,14 @@ def load_data(data_path, limit_size):
 
 
 
-def smth(): pass
+def preprocess_bootstrap():
+    data, len_data = preprocess()
+    pickle_save(data, 'samples.pkl')
+    return len_data
 
 
 if __name__ == '__main__':
-    data = preprocess()
+    data,_ = preprocess()
     pickle_save(data,'samples.pkl')
 
 

@@ -19,14 +19,14 @@ learning_rate_2 = 0.01
 
     # model details
 
-default_layers = [20, 12, 16]
+default_layers = [20, 16, 24]
 
 
     # data details
 
 data_path = 'samples.pkl'
 data_size = 30_000
-batch_size = 400 # 200
+batch_size = 200 # 400
 
 
     # training details
@@ -373,7 +373,7 @@ def parent_bootstrap(hm_data,
                      extra_care=False,
                      decay_batch_sizes=True,
                      quicksaves=True,
-                     quality='medium'):
+                     quality='N/A'):
 
     global total_epochs 
     total_epochs = total_ep
@@ -400,22 +400,37 @@ def parent_bootstrap(hm_data,
 
     import multiprocessing
     cpu_count = multiprocessing.cpu_count()
+    import os
 
+    if hm_data < 10_000:
+        print(f'Need more data. {hm_data} < 10_000')
+        os.remove('samples.pkl')
+        return
+    else:
+        data_size = int(hm_data * 3/4)
+        hm_10s = int(data_size / 10_000)
+        data_size = hm_10s * 10_000
 
-    if quality == 'medium':
-        batch_size = cpu_count * 3
-    elif quality == 'high':
-        batch_size = cpu_count * 2
-    elif quality == 'low':
-        batch_size = cpu_count * 5
+        if quality == 'medium':
+            batch_size = cpu_count * 3
+        elif quality == 'high':
+            batch_size = cpu_count * 2
+        elif quality == 'low':
+            batch_size = cpu_count * 5
 
-    trainer.batch_size = batch_size
-    res.initialize_loss_txt()
-    data = get_data()
+        if batches_of == -99:
+            if data_size >= 50_000:
+                batch_size = 400
+            else:
+                batch_size = 200
 
-    if not start_advanced:
-        run_simple_parenting(data)
+        trainer.batch_size = batch_size
+        res.initialize_loss_txt()
+        data = get_data()
 
-        if further_parenting: run_advanced_parenting(data)
+        if not start_advanced:
+            run_simple_parenting(data)
 
-    else: run_advanced_parenting(data)
+            if further_parenting: run_advanced_parenting(data)
+
+        else: run_advanced_parenting(data)

@@ -305,12 +305,13 @@ stop_dur = res.SPLIT_DURATION
 def stop_cond(output_t):
 
     # notes = output_t[0]
-    durations = output_t[2]
 
     # sel_notes = [_ for _,e in enumerate(notes) if e.item() >= 0.1]
 
     # for note in sel_notes:
     #     if note == 12: return True
+
+    durations = output_t[int(len(output_t)*2/4):int(len(output_t)*3/4)]
 
     for dur in durations:
         if float(dur) >= stop_dur: return True

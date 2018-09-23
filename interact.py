@@ -97,7 +97,11 @@ def bootstrap():
 
 def ai_2_human(out_t, chordMode=True):
 
-    vocabs, octaves, durations, volumes = out_t
+    len_out = len(out_t) # todo replace with Vanilla.IOsize = 52
+    vocabs, octaves, durations, volumes = out_t[:int(len_out/4)], \
+                                          out_t[int(len_out/4):int(len_out/2)], \
+                                          out_t[int(len_out/2):int(len_out/4*3)], \
+                                          out_t[int(len_out/4*3):]
 
     # sel_vocabs = []
     sel_octs   = []
@@ -110,9 +114,9 @@ def ai_2_human(out_t, chordMode=True):
         sel_vocabs = [torch.argmax(vocabs).item()]
 
     for vocab in sel_vocabs:
-        sel_octs.append(round(float(octaves[vocab]) * max_octave, 3))
-        sel_durs.append(round(float(durations[vocab]) * max_duration, 3))
-        sel_vols.append(round(float(volumes[vocab]) * max_volume, 3))
+        sel_octs.append(round(float(octaves[vocab]) * max_octave))
+        sel_durs.append(round(float(durations[vocab]) * max_duration))
+        sel_vols.append(round(float(volumes[vocab]) * max_volume))
 
     return sel_vocabs, sel_octs, sel_durs, sel_vols
 
