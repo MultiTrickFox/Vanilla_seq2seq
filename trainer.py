@@ -171,10 +171,11 @@ def process_fn(fn_input):
 
     Vanilla.update_gradients(loss_nodes)
 
-    loss = float(sum(loss_nodes))
-    # loss = [float(sum(node)) if _ == 0
-    #         else -float(sum(node))
-    #         for _, node in enumerate([loss_nodes[0], loss_nodes[1], loss_nodes[2], loss_nodes[3]])]
+    loss_len = len(loss_nodes)
+    loss = [float(sum(e)) for e in [loss_nodes[:int(loss_len/4)],
+                                    loss_nodes[int(loss_len/4) : int(loss_len/2)],
+                                    loss_nodes[int(loss_len/2) : 3*int(loss_len/4)],
+                                    loss_nodes[int(3*loss_len/4):]]]
 
     grads = Vanilla.return_grads(model)
 

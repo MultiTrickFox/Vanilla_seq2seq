@@ -19,7 +19,7 @@ learning_rate_2 = 0.01
 
     # model details
 
-default_layers = [20, 30, 25]
+default_layers = [20, 35, 25]
 
 
     # data details
@@ -150,7 +150,7 @@ def simple_parenting(model, accugrads, data):
                 branch_ctr += 1
 
                 print(f'@ {get_clock()} : '
-                      f'Branch {branch_ctr} / {branch_ctr_max} generated. ')
+                      f'branch {branch_ctr} / {branch_ctr_max} generated. ')
 
 
     del checkpoints[0]
@@ -251,7 +251,7 @@ def advanced_parenting(model, accugrads, moments, data):
                 branch_ctr +=1
 
                 print(f'@ {get_clock()} : '
-                      f'Branch {branch_ctr} / {branch_ctr_max} geenrated. ')
+                      f'branch {branch_ctr} / {branch_ctr_max} geenrated. ')
 
 
     del checkpoints[0]

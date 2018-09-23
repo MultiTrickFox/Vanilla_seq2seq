@@ -297,7 +297,7 @@ def init_states(model):
     return [states_t0]
 
 def init_outstates(model):
-    return [torch.ones([len(model[-1]['vr'])], requires_grad=True) ]
+    return [torch.ones([len(model[-1]['vr'])], requires_grad=True)]
 
 
 import res
