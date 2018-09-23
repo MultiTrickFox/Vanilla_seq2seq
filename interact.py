@@ -170,12 +170,19 @@ def get_user_input(inp_len):
         data = [notes, octs, durs, vols]
         vocab_vect, oct_vect, dur_vect, vol_vect = human_2_ai(data)
 
-        vocab_seq.append(Tensor(vocab_vect))
-        oct_seq.append(Tensor(oct_vect))
-        dur_seq.append(Tensor(dur_vect))
-        vol_seq.append(Tensor(vol_vect))
+        vocab_seq.append(vocab_vect)
+        oct_seq.append(oct_vect)
+        dur_seq.append(dur_vect)
+        vol_seq.append(vol_vect)
 
-    sequence = [vocab_seq, oct_seq, dur_seq, vol_seq]
+    sequence = []
+
+    for _ in range(len(vocab_seq)):
+        vec_t = []
+        [vec_t.extend(e) for e in [vocab_seq[_], oct_seq[_], dur_seq[_], vol_seq[_]]]
+
+        sequence.append(Tensor(vec_t))
+
 
     return sequence
 

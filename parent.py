@@ -19,14 +19,14 @@ learning_rate_2 = 0.01
 
     # model details
 
-default_layers = [16, 25, 20]
+default_layers = [20, 12, 16]
 
 
     # data details
 
 data_path = 'samples.pkl'
 data_size = 30_000
-batch_size = 200
+batch_size = 400 # 200
 
 
     # training details
@@ -90,8 +90,8 @@ def simple_parenting(model, accugrads, data):
             successful_epochs +=1
 
             print(f'@ {get_clock()} : '
-                  f'. epoch {successful_epochs} / {total_epochs} completed. ')
-            res.write_loss(thisStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
+                  f'.  epoch {successful_epochs} / {total_epochs} completed. ')
+            res.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
 
             if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
                 trainer.batch_size = int(trainer.batch_size * 4/5)
@@ -117,7 +117,10 @@ def simple_parenting(model, accugrads, data):
 
             while branch_ctr < branch_ctr_max:
 
-                prev_model, prev_accugrads, prev_loss =   branch_prevStep
+                print(f'@ {get_clock()} : '
+                      f'... branching {branch_ctr+1} / {branch_ctr_max} . ')
+
+                prev_model, prev_accugrads, prev_loss = branch_prevStep
 
                 branch_thisStep = trainer.train_rms(prev_model, prev_accugrads, data) ; this_loss = branch_thisStep[-1]
 
@@ -127,13 +130,15 @@ def simple_parenting(model, accugrads, data):
 
                     if all(np.array(this_loss[0]) < np.array(branch_goal[0])):
 
-                        checkpoints.append(branch_points[-1])
+                        prevStep = branch_prevStep
+
+                        checkpoints.append(prevStep)
 
                         successful_epochs +=1
 
                         print(f'@ {get_clock()} : '
-                              f'. epoch {successful_epochs} / {total_epochs} completed. ')
-                        res.write_loss(branch_thisStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
+                              f'.  epoch {successful_epochs} / {total_epochs} completed. ')
+                        res.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
 
                         if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
                             trainer.batch_size = int(trainer.batch_size * 4/5)
@@ -148,9 +153,6 @@ def simple_parenting(model, accugrads, data):
                     branch_prevStep = branch_thisStep
 
                 branch_ctr += 1
-
-                print(f'@ {get_clock()} : '
-                      f'... branch {branch_ctr} / {branch_ctr_max} generated. ')
 
 
     del checkpoints[0]
@@ -191,8 +193,8 @@ def advanced_parenting(model, accugrads, moments, data):
             successful_epochs +=1
 
             print(f'@ {get_clock()} : '
-                  f'. epoch {successful_epochs} / {total_epochs} completed.')
-            res.write_loss(thisStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
+                  f'.  epoch {successful_epochs} / {total_epochs} completed.')
+            res.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
 
             if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
                 trainer.batch_size = int(trainer.batch_size * 4/5)
@@ -217,6 +219,9 @@ def advanced_parenting(model, accugrads, moments, data):
 
             while branch_ctr < branch_ctr_max:
 
+                print(f'@ {get_clock()} : '
+                      f'... branching {branch_ctr+1} / {branch_ctr_max} . ')
+
                 prev_model, prev_accugrads, prev_moments, prev_loss = branch_prevStep
 
                 branch_thisStep = trainer.train_rms(prev_model, prev_accugrads, prev_moments, data) ; this_loss = branch_thisStep[-1]
@@ -227,13 +232,15 @@ def advanced_parenting(model, accugrads, moments, data):
 
                     if all(np.array(this_loss[0]) < np.array(branch_goal[0])):
 
-                        checkpoints.append(branch_points[-1])
+                        prevStep = branch_prevStep
+
+                        checkpoints.append(prevStep)
 
                         successful_epochs +=1
 
                         print(f'@ {get_clock()} : '
-                              f'. epoch {successful_epochs} / {total_epochs} completed. ')
-                        res.write_loss(branch_thisStep[-1][0], as_txt=True, epoch_nr=successful_epochs)
+                              f'.  epoch {successful_epochs} / {total_epochs} completed. ')
+                        res.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
 
                         if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
                             trainer.batch_size = int(trainer.batch_size * 4/5)
@@ -249,9 +256,6 @@ def advanced_parenting(model, accugrads, moments, data):
                     branch_prevStep = branch_thisStep
 
                 branch_ctr +=1
-
-                print(f'@ {get_clock()} : '
-                      f'... branch {branch_ctr} / {branch_ctr_max} generated. ')
 
 
     del checkpoints[0]
@@ -275,7 +279,10 @@ def run_simple_parenting(data):
     # initialize model
     IOdims = res.vocab_size
     model = res.load_model()
-    if model is None: model = Vanilla.create_model(IOdims, default_layers, IOdims)
+    if model is None:
+        model = Vanilla.create_model(IOdims, default_layers, IOdims)
+    else:
+        res.save_model(model, '_before_simple')
 
     # initialize metadata
     accugrads = trainer.load_accugrads(model)
@@ -299,7 +306,10 @@ def run_advanced_parenting(data):
     # initialize model
     IOdims = res.vocab_size
     model = res.load_model()
-    if model is None: model = Vanilla.create_model(IOdims, default_layers, IOdims)
+    if model is None:
+        model = Vanilla.create_model(IOdims, default_layers, IOdims)
+    else:
+        res.save_model(model, '_before_adv')
 
     # initalize metadata
     accugrads = trainer.load_accugrads(model)

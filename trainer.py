@@ -54,7 +54,7 @@ cube_distance = False
 
     # details
 
-write_loss_to_txt = True
+write_loss_to_txt = False
 
 
     # # #
@@ -400,8 +400,17 @@ def process_fn_alt(fn_input):
     x_vocab, x_oct, x_dur, x_vol, y_vocab, y_oct, y_dur, y_vol = data
     generative_length = len(y_vocab)
 
-    inp = [Tensor(e) for e in [x_vocab, x_oct, x_dur, x_vol]]
-    trg = [Tensor(e) for e in [y_vocab, y_oct, y_dur, y_vol]]
+    inp, trg = [], []
+
+    for _ in range(len(x_vocab)):
+        vect = []
+        [vect.extend(e) for e in [x_vocab[_], x_oct[_], x_dur[_], x_vol[_]]]
+        inp.append(Tensor(vect))
+
+    for _ in range(len(y_vocab)):
+        vect = []
+        [vect.extend(e) for e in [y_vocab[_], y_oct[_], y_dur[_], y_vol[_]]]
+        trg.append(Tensor(vect))
 
     response = utils.forward_prop_train(model, inp, gen_iterations=generative_length, drop_in=drop_in, drop_mid=drop_mid, drop_out=drop_out)
 
@@ -412,29 +421,19 @@ def process_fn_alt(fn_input):
         resp2.append(resp_t[2])    # response[:,2]
         resp3.append(resp_t[3])    # response[:,3]
 
-    # loss_nodes = np.array([
-    #     loss_fn(resp0, trg[0]),
-    #     loss_fn(resp1, trg[1]),
-    #     lo(resp2, trg[2]),
-    #     loss_fn2(resp3, trg[3])])
+    loss_nodes = loss_fn(response, trg, cube=cube_distance)
 
-    # loss = [float(sum(e)) for e in [loss_nodes[0], loss_nodes[1], loss_nodes[2], loss_nodes[3]]]
-    loss = []
-    # for _, node in enumerate(loss_nodes):
-    #     element = float(sum(node))
-    #     if _ == 0:
-    #         loss.append(element)
-    #     else:
-    #         loss.append(-element)
-    #
-    # Vanilla.update_gradients(loss_nodes)
-    # model_grads = Vanilla.return_grads(model)
+    Vanilla.update_gradients(loss_nodes)
 
-    # return loss, model_grads
+    loss_len = len(loss_nodes)
+    loss = [float(sum(e)) for e in [loss_nodes[:int(loss_len/4)],
+                                    loss_nodes[int(loss_len/4): int(loss_len/2)],
+                                    loss_nodes[int(loss_len/2): 3 * int(loss_len/4)],
+                                    loss_nodes[int(3*loss_len/4):]]]
 
+    grads = Vanilla.return_grads(model)
 
-
-
+    return loss, grads
 
 
 if __name__ == '__main__':

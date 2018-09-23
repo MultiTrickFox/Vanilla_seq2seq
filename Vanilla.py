@@ -15,12 +15,12 @@ def create_model(in_size, layer_sizes, out_size):
 
     model.append(
         {'vr':torch.randn([layer_sizes[0], input_dim], requires_grad=True),
-         'ur':torch.randn([layer_sizes[0]], requires_grad=True),
+         'ur':torch.randn([layer_sizes[0], layer_sizes[0]], requires_grad=True),
          'wr':torch.randn([layer_sizes[0]], requires_grad=True),
          'br':torch.zeros([layer_sizes[0]], requires_grad=True),
 
          'va':torch.randn([layer_sizes[0], input_dim], requires_grad=True),
-         'ua':torch.randn([layer_sizes[0]], requires_grad=True),
+         'ua':torch.randn([layer_sizes[0], layer_sizes[0]], requires_grad=True),
          'wa':torch.randn([layer_sizes[0]], requires_grad=True),
          'ba':torch.zeros([layer_sizes[0]], requires_grad=True),
 
@@ -43,7 +43,7 @@ def create_model(in_size, layer_sizes, out_size):
              'br':torch.zeros([layer_sizes[_]], requires_grad=True),
 
              'va':torch.randn([layer_sizes[_], prev_lsize], requires_grad=True),
-             'ua': torch.randn([layer_sizes[_], layer_sizes[_]], requires_grad=True),
+             'ua': torch.randn([layer_sizes[_]], requires_grad=True),
              'wa':torch.randn([layer_sizes[_]], requires_grad=True),
              'ba':torch.zeros([layer_sizes[_]], requires_grad=True),
 
@@ -99,7 +99,7 @@ def prop_func(model, sequence_t, context_t, out_context_t):
     remember = torch.sigmoid(
         model[0]['wr'] *
         (torch.matmul(model[0]['vr'], sequence_t) +
-         model[0]['ur'] * context_t[0]
+         torch.matmul(model[0]['ur'], context_t[0])
          )
         + model[0]['br']
     )
@@ -107,7 +107,7 @@ def prop_func(model, sequence_t, context_t, out_context_t):
     attention = torch.sigmoid(
         model[0]['wa'] *
         (torch.matmul(model[0]['va'], sequence_t) +
-         model[0]['ua'] * context_t[0]
+         torch.matmul(model[0]['ua'], context_t[0])
          )
         + model[0]['ba']
     )
@@ -137,7 +137,7 @@ def prop_func(model, sequence_t, context_t, out_context_t):
     attention = torch.sigmoid(
         model[1]['wa'] *
         (torch.matmul(model[1]['va'], t_states[-1]) +
-         torch.matmul(model[1]['ua'], context_t[1])
+         model[1]['ua'] * context_t[1]
          )
         + model[1]['ba']
     )

@@ -6,6 +6,8 @@ import music21
 from music21 import converter # note, chord
 from multiprocessing import Pool, cpu_count
 
+# import gc
+
 
 min_seq_len = 10
 max_seq_len = 40
@@ -105,6 +107,7 @@ def parse_fn(stream):
 
                 vocab_seq_container, oct_seq_container, dur_seq_container, vol_seq_container = [], [], [], []
 
+    # gc.collect(stream)
 
     if len(mstream) != 1:
         for i, thing in enumerate(mstream[:-1]):
@@ -344,7 +347,9 @@ def load_data(data_path, limit_size):
         blocks.append([vocab_X[_], oct_X[_], dur_X[_], vol_X[_],
                        vocab_Y[_], oct_Y[_], dur_Y[_], vol_Y[_]])
 
+    # gc.collect(dataset)
     data = random.choices(blocks, k=limit_size)
+    # gc.collect(blocks)
     return data
 
 
