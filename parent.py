@@ -26,7 +26,7 @@ default_layers = [20, 16, 24]
 
 data_path = 'samples.pkl'
 data_size = 30_000
-batch_size = 200 # 400
+batch_size = 400 # /2
 
 
     # training details
@@ -43,6 +43,7 @@ trainer.drop_out = 0.0
 
 reducing_batch_sizes = True
 reduce_batch_per_epoch = 5
+reduce_ratio = 3/5
 
 save_intermediate_model = True
 save_model_per_epoch = 5
@@ -75,6 +76,8 @@ def simple_parenting(model, accugrads, data):
 
         # begin parenting
 
+    print(f'Batch size : {batch_size}')
+
     print(f'\n@ {get_clock()} : Simple Parent running...')
 
     while successful_epochs < total_epochs:
@@ -94,7 +97,7 @@ def simple_parenting(model, accugrads, data):
             res.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
 
             if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
-                trainer.batch_size = int(trainer.batch_size * 4/5)
+                trainer.batch_size = int(trainer.batch_size * reduce_ratio)
                 print(f'Batch size reduced : {trainer.batch_size}')
 
             if save_intermediate_model and successful_epochs % save_model_per_epoch == 0:
@@ -141,7 +144,7 @@ def simple_parenting(model, accugrads, data):
                         res.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
 
                         if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
-                            trainer.batch_size = int(trainer.batch_size * 4/5)
+                            trainer.batch_size = int(trainer.batch_size * reduce_ratio)
 
                         if save_intermediate_model and successful_epochs % save_model_per_epoch == 0:
                             ctr_save_id +=1 ; save_id = ctr_save_id * 0.001
@@ -184,7 +187,7 @@ def advanced_parenting(model, accugrads, moments, data):
 
         prev_model, prev_accugrads, prev_moments, prev_loss = prevStep
 
-        thisStep = trainer.train_rmsadv(prev_model, prev_accugrads, prev_moments, data) ; this_loss = thisStep[-1]
+        thisStep = trainer.train_rmsadv(prev_model, prev_accugrads, prev_moments, data, epoch_nr=successful_epochs) ; this_loss = thisStep[-1]
 
         if all(np.array(this_loss[0]) < np.array(prev_loss[0])):
 

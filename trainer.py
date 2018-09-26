@@ -285,7 +285,7 @@ def train_rmsadv(model, accu_grads, moments, data, epoch_nr=None, num_epochs=1, 
             batch = np.array(data[batch_ptr:batch_end_ptr])
 
             # proto = model.copy()
-            # utils.nesterov_step1(proto, moments)
+            # utils.nesterov_step1(proto, moments) # send proto to map_async
 
             with thisPool(num_workers) as pool:
 

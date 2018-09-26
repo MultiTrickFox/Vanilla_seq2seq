@@ -2,8 +2,8 @@ import res
 import parent
 import interact
 
-is_preprocessed = True
-parent.shutdown_after_complete = False
+is_preprocessed = False
+# parent.shutdown_after_complete = False
 
 len_data = None
 
@@ -13,4 +13,4 @@ if __name__ == '__main__':
     if len_data is None:
         len_data = res.get_datasize(parent.data_path)
     parent.parent_bootstrap(len_data, parent.batch_size)
-    interact.bootstrap()
+    # interact.bootstrap()

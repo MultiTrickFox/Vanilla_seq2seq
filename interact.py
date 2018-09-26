@@ -109,7 +109,7 @@ def ai_2_human(out_t, chordMode=True):
     sel_vols   = []
 
     if chordMode:
-        sel_vocabs = [_ for _,e in enumerate(vocabs) if e.item() >= 0.1]
+        sel_vocabs = [_ for _,e in enumerate(vocabs) if e.item() >= 0.7]
     else:
         sel_vocabs = [torch.argmax(vocabs).item()]
 
