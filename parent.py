@@ -19,7 +19,7 @@ learning_rate_2 = 0.01
 
     # model details
 
-default_layers = [20, 16, 24]
+default_layers = [4, 3, 5]
 
 
     # data details
@@ -360,7 +360,7 @@ if __name__ == '__main__':
     if not shutdown_after_complete:
         utils.plot_loss_txts()
     else:
-        subprocess.call(["shutdown","/s"])
+        subprocess.call(["shutdown","-s"])
 
 
 

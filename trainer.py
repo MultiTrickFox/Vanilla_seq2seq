@@ -21,7 +21,7 @@ from Vanilla                          \
 
     # layer struct
 
-layer_sizes = [5, 8, 7] # [8, 12, 10] # [2, 4, 5] # [3, 5, 4]
+layer_sizes = [3,5,4] # [5, 8, 7] # [8, 12, 10] # [2, 4, 5] # [3, 5, 4]
 
     # basic params
 
@@ -144,15 +144,22 @@ def process_fn(fn_input):
 
     inp, trg = [], []
 
-    for _ in range(len(x_vocab)):
-        vect = []
-        [vect.extend(e) for e in [x_vocab[_], x_oct[_], x_dur[_], x_vol[_]]]
-        inp.append(Tensor(vect))
+    # for _ in range(len(x_vocab)):     # multi I/O form
+    #     vect = []
+    #     [vect.extend(e) for e in [x_vocab[_], x_oct[_], x_dur[_], x_vol[_]]]
+    #     inp.append(Tensor(vect))
+    #
+    # for _ in range(len(y_vocab)):
+    #     vect = []
+    #     [vect.extend(e) for e in [y_vocab[_], y_oct[_], y_dur[_], y_vol[_]]]
+    #     trg.append(Tensor(vect))
 
+    inp = Tensor([x_vocab, x_oct, x_dur, x_vol])
+
+    # modified
+    trg = []
     for _ in range(len(y_vocab)):
-        vect = []
-        [vect.extend(e) for e in [y_vocab[_], y_oct[_], y_dur[_], y_vol[_]]]
-        trg.append(Tensor(vect))
+        trg.append([Tensor(e) for e in [y_vocab[_], y_oct[_], y_dur[_], y_vol[_]]])
 
     response = Vanilla.forward_prop(model, inp, gen_iterations=generative_length)
 
@@ -163,7 +170,7 @@ def process_fn(fn_input):
     #     resp2.append(resp_t[2])    # response[:,2]
     #     resp3.append(resp_t[3])    # response[:,3]
 
-    loss_nodes = loss_fn(response, trg, cube=cube_distance)
+    loss_nodes = loss_fn(response, trg)
 
     Vanilla.update_gradients(loss_nodes)
 

@@ -1,34 +1,37 @@
 import torch
-from torch import Tensor
 
 hm_ins = 4 ; hm_outs = 4
 # max_time = 40
 
 def create_model(in_size, layer_sizes, out_size):
-
-    input_dim = in_size * hm_ins
-    output_dim = out_size * hm_outs
-
     model = []
 
     #   GRU Input Layer
 
-    model.append(
-        {'vr':torch.randn([layer_sizes[0], input_dim], requires_grad=True),
-         'ur':torch.randn([layer_sizes[0], layer_sizes[0]], requires_grad=True),
-         'wr':torch.randn([layer_sizes[0]], requires_grad=True),
-         'br':torch.zeros([layer_sizes[0]], requires_grad=True),
+    inp_layer = {}
 
-         'va':torch.randn([layer_sizes[0], input_dim], requires_grad=True),
-         'ua':torch.randn([layer_sizes[0], layer_sizes[0]], requires_grad=True),
-         'wa':torch.randn([layer_sizes[0]], requires_grad=True),
-         'ba':torch.zeros([layer_sizes[0]], requires_grad=True),
+    for _ in range(hm_ins):
 
-         'vs':torch.randn([layer_sizes[0], input_dim], requires_grad=True),
-         'ws':torch.randn([layer_sizes[0]], requires_grad=True),
-         'bs':torch.zeros([layer_sizes[0]], requires_grad=True)
+        str_ = '_'+str(_)
 
-         })
+        inp_layer.update(
+            {'vr'+str_:torch.randn([layer_sizes[0], in_size], requires_grad=True),
+             'ur'+str_:torch.randn([layer_sizes[0], layer_sizes[0]], requires_grad=True),
+             'wr'+str_:torch.randn([layer_sizes[0]], requires_grad=True),
+             'br'+str_:torch.zeros([layer_sizes[0]], requires_grad=True),
+
+             'va'+str_:torch.randn([layer_sizes[0], in_size], requires_grad=True),
+             'ua'+str_:torch.randn([layer_sizes[0], layer_sizes[0]], requires_grad=True),
+             'wa'+str_:torch.randn([layer_sizes[0]], requires_grad=True),
+             'ba'+str_:torch.zeros([layer_sizes[0]], requires_grad=True),
+
+             'vs'+str_:torch.randn([layer_sizes[0], in_size], requires_grad=True),
+             'ws'+str_:torch.randn([layer_sizes[0]], requires_grad=True),
+             'bs'+str_:torch.zeros([layer_sizes[0]], requires_grad=True)
+
+             })
+
+    model.append(inp_layer)
 
     #   GRU Middle layer(s)
 
@@ -55,35 +58,43 @@ def create_model(in_size, layer_sizes, out_size):
 
     #   LSTM Output layer
 
-    model.append(
-        {'vr':torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
-         'ur':torch.randn([layer_sizes[-1]], requires_grad=True),
-         'wr':torch.randn([layer_sizes[-1]], requires_grad=True),
-         'br':torch.zeros([layer_sizes[-1]], requires_grad=True),
+    out_layer = {}
 
-         'va':torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
-         'ua':torch.randn([layer_sizes[-1]], requires_grad=True),
-         'ua2':torch.randn([layer_sizes[-1], layer_sizes[-1]], requires_grad=True),
-         'wa':torch.randn([layer_sizes[-1]], requires_grad=True),
-         'ba':torch.zeros([layer_sizes[-1]], requires_grad=True),
+    for _ in range(hm_outs):
 
-         'vs':torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
-         'us':torch.randn([layer_sizes[-1]], requires_grad=True),
-         'ws':torch.randn([layer_sizes[-1], layer_sizes[-1]], requires_grad=True),
-         'bs':torch.zeros([layer_sizes[-1]], requires_grad=True),
+        str_ = '_'+str(_)
 
-         'vf':torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
-         'uf':torch.randn([layer_sizes[-1]], requires_grad=True),
-         'wf':torch.randn([layer_sizes[-1]], requires_grad=True),
-         'bf':torch.zeros([layer_sizes[-1]], requires_grad=True),
+        out_layer.update(
+            {'vr'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
+             'ur'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'wr'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'br'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
-         'wif':torch.randn([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
+             'va'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
+             'ua'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'ua2'+str_:torch.randn([layer_sizes[-1], layer_sizes[-1]], requires_grad=True),
+             'wa'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'ba'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
-         'wo':torch.randn([output_dim, layer_sizes[-1]], requires_grad=True),
+             'vs'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
+             'us'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'ws'+str_:torch.randn([layer_sizes[-1], layer_sizes[-1]], requires_grad=True),
+             'bs'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
-         'bo':torch.zeros([output_dim], requires_grad=True)
+             'vf'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
+             'uf'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'wf'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'bf'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
-         })
+             'wif'+str_:torch.randn([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
+
+             'wo'+str_:torch.randn([out_size, layer_sizes[-1]], requires_grad=True),
+
+             'bo'+str_:torch.zeros([out_size], requires_grad=True)
+
+             })
+
+    model.append(out_layer)
 
     return model
 
@@ -96,39 +107,45 @@ def prop_func(model, sequence_t, context_t, out_context_t):
 
     # GRU Input Layer
 
-    remember = torch.sigmoid(
-        model[0]['wr'] *
-        (torch.matmul(model[0]['vr'], sequence_t) +
-         torch.matmul(model[0]['ur'], context_t[0])
-         )
-        + model[0]['br']
-    )
+    t_states.append([])
 
-    attention = torch.sigmoid(
-        model[0]['wa'] *
-        (torch.matmul(model[0]['va'], sequence_t) +
-         torch.matmul(model[0]['ua'], context_t[0])
-         )
-        + model[0]['ba']
-    )
+    for _ in range(hm_ins):
 
-    shortmem = torch.tanh(
-        model[0]['ws'] *
-        (torch.matmul(model[0]['vs'], sequence_t) +
-         attention * context_t[0]
-         )
-        + model[0]['bs']
-    )
+        str_ = '_'+str(_)
 
-    state = remember * shortmem + (1-remember) * context_t[0]
+        remember = torch.sigmoid(
+            model[0]['wr'+str_] *
+            (torch.matmul(model[0]['vr'+str_], sequence_t[_]) +
+             torch.matmul(model[0]['ur'+str_], context_t[0][_])
+             )
+            + model[0]['br'+str_]
+        )
 
-    t_states.append(state)
+        attention = torch.sigmoid(
+            model[0]['wa'+str_] *
+            (torch.matmul(model[0]['va'+str_], sequence_t[_]) +
+             torch.matmul(model[0]['ua'+str_], context_t[0][_])
+             )
+            + model[0]['ba'+str_]
+        )
+
+        shortmem = torch.tanh(
+            model[0]['ws'+str_] *
+            (torch.matmul(model[0]['vs'+str_], sequence_t[_]) +
+             attention * context_t[0][_]
+             )
+            + model[0]['bs'+str_]
+        )
+
+        t_states[0].append(remember * shortmem + (1-remember) * context_t[0][0])
 
     # GRU Middle layer
 
+    prev_layer_out = sum(t_states[-1])
+
     remember = torch.sigmoid(
         model[1]['wr'] *
-        (torch.matmul(model[1]['vr'], t_states[-1]) +
+        (torch.matmul(model[1]['vr'], prev_layer_out) +
          model[1]['ur'] * context_t[1]
          )
         + model[1]['br']
@@ -136,7 +153,7 @@ def prop_func(model, sequence_t, context_t, out_context_t):
 
     attention = torch.sigmoid(
         model[1]['wa'] *
-        (torch.matmul(model[1]['va'], t_states[-1]) +
+        (torch.matmul(model[1]['va'], prev_layer_out) +
          model[1]['ua'] * context_t[1]
          )
         + model[1]['ba']
@@ -144,7 +161,7 @@ def prop_func(model, sequence_t, context_t, out_context_t):
 
     shortmem = torch.tanh(
         model[1]['ws'] *
-        (torch.matmul(model[1]['vs'], t_states[-1]) +
+        (torch.matmul(model[1]['vs'], prev_layer_out) +
          attention * context_t[1]
          )
         + model[1]['bs']
@@ -155,49 +172,57 @@ def prop_func(model, sequence_t, context_t, out_context_t):
 
     # LSTM Output layer
 
-    remember = torch.sigmoid(
-        model[-1]['wr'] *
-        (torch.matmul(model[-1]['vr'], t_states[-1]) +
-         model[-1]['ur'] * context_t[-1]
-         )
-        + model[-1]['br']
-    )
+    t_states.append([])
+    out_states, outputs = [], []
 
-    forget = torch.sigmoid(
-        model[-1]['wf'] *
-        (torch.matmul(model[-1]['vf'], t_states[-1]) +
-         model[-1]['uf'] * context_t[-1]
-         )
-        + model[-1]['bf']
-    )
+    for _ in range(hm_outs):
 
-    attention = torch.sigmoid(
-        model[-1]['wa'] *
-        (torch.matmul(model[-1]['va'], t_states[-1]) +
-         model[-1]['ua'] * context_t[-1] +
-         torch.matmul(model[-1]['ua2'], out_context_t) +
-         torch.matmul(model[-1]['wif'], t_states[0])
-         )
-        + model[-1]['ba']
-    )
+        str_ = '_'+str(_)
+        prev_layer_out = t_states[-2]
 
-    shortmem = torch.tanh(
-        torch.matmul(model[-1]['ws'],
-                     (torch.matmul(model[-1]['vs'], t_states[-1]) +
-                      model[-1]['us'] * context_t[-1])
-                     )
-        + model[-1]['bs']
-    )
+        remember = torch.sigmoid(
+            model[-1]['wr'+str_] *
+            (torch.matmul(model[-1]['vr'+str_], prev_layer_out) +
+             model[-1]['ur'+str_] * context_t[-1][_]
+             )
+            + model[-1]['br'+str_]
+        )
 
+        forget = torch.sigmoid(
+            model[-1]['wf'+str_] *
+            (torch.matmul(model[-1]['vf'+str_], prev_layer_out) +
+             model[-1]['uf'+str_] * context_t[-1][_]
+             )
+            + model[-1]['bf'+str_]
+        )
 
-    state = remember * shortmem + forget * context_t[-1]
-    t_states.append(state)
+        attention = torch.sigmoid(
+            model[-1]['wa'+str_] *
+            (torch.matmul(model[-1]['va'+str_], prev_layer_out) +
+             model[-1]['ua'+str_] * context_t[-1][_] +
+             torch.matmul(model[-1]['ua2'+str_], out_context_t[_]) +
+             torch.matmul(model[-1]['wif'+str_], t_states[0][_])
+             )
+            + model[-1]['ba'+str_]
+        )
 
-    outstate = attention * torch.tanh(t_states[-1])
+        shortmem = torch.tanh(
+            torch.matmul(model[-1]['ws'+str_],
+                         (torch.matmul(model[-1]['vs'+str_], prev_layer_out) +
+                          model[-1]['us'+str_] * context_t[-1][_])
+                         )
+            + model[-1]['bs'+str_]
+        )
 
-    output = torch.sigmoid(torch.matmul(model[-1]['wo'], outstate) + model[-1]['bo'])
+        this_state = remember * shortmem + forget * context_t[-1][_]
 
-    return t_states, outstate, output
+        t_states[-1].append(this_state)
+
+        out_states.append(attention * torch.tanh(this_state))
+
+        outputs.append(torch.sigmoid(torch.matmul(model[-1]['wo'+str_], out_states[-1]) + model[-1]['bo'+str_]))
+
+    return t_states, out_states, outputs
 
 
 #   Forward-Prop_method
@@ -209,13 +234,14 @@ def forward_prop(model, sequence, context=None, gen_seed=None, gen_iterations=No
     #   listen
 
 
-    states = [context] if context is not None else init_states(model) # , hm_ins=hm_ins)
-    out_states = init_outstates(model) # , hm_outs=hm_outs)
+    vocab_seq, oct_seq, dur_seq, vol_seq  = sequence
+    states = [context] if context is not None else init_states(model, hm_ins=hm_ins)
+    out_states = init_outstates(model, hm_outs=hm_outs)
     outputs = []
 
-    for t in range(len(sequence)):
+    for t in range(len(sequence[0])):
 
-        t_states, out_state, out = prop_func(model, sequence[t], states[-1], out_states[-1])
+        t_states, out_state, out = prop_func(model, [vocab_seq[t], oct_seq[t], dur_seq[t], vol_seq[t]], states[-1], out_states[-1])
         states.append(t_states)
         out_states.append(out_state)
         outputs.append(out)
@@ -269,35 +295,38 @@ def custom_entropy(output_seq, label_seq, will_softmax=False):
 
     return sequence_losses
 
-def custom_distance(output_seq, label_seq, cube=False):
+def custom_distance(output_seq, label_seq):
     sequence_losses = []
 
     for t in range(len(label_seq)):
         lbl = label_seq[t]
+        # print(lbl)
         pred = output_seq[t]
+        # print(pred)
+
+        for _,lbl_e in enumerate(lbl):
+            pred_e = pred[_]
+            sequence_losses.append((lbl_e - pred_e).sum())
 
         # loss = torch.abs(lbl - pred)
         # loss = (lbl - pred)**2
         # loss = (lbl - pred)**3
         # loss = torch.abs(((lbl - pred) ** 3))
-        loss = lbl - pred if not cube else (lbl - pred) ** 3
-
-        sequence_losses.append(loss.sum())
 
     return sequence_losses
 
 
 
 
-def init_states(model):
-    states_t0 = [torch.ones([len(model[0]['vr'])], requires_grad=True)]
+def init_states(model, hm_ins):
+    states_t0 = [[torch.ones([len(model[0]['vr_0'])], requires_grad=True) for _ in range(hm_ins)]]
     for _ in range(1,len(model)-1):
         states_t0.append(torch.ones([len(model[_]['vr'])], requires_grad=True))
-    states_t0.append(torch.ones([len(model[-1]['vr'])], requires_grad=True))
+    states_t0.append(torch.ones([len(model[-1]['vr_0'])], requires_grad=True))
     return [states_t0]
 
-def init_outstates(model):
-    return [torch.ones([len(model[-1]['vr'])], requires_grad=True)]
+def init_outstates(model, hm_outs):
+    return [[torch.ones([len(model[-1]['vr_0'])], requires_grad=True) for _ in range(hm_outs)]]
 
 
 import res
@@ -305,13 +334,12 @@ stop_dur = res.SPLIT_DURATION
 def stop_cond(output_t):
 
     # notes = output_t[0]
+    durations = output_t[2]
 
     # sel_notes = [_ for _,e in enumerate(notes) if e.item() >= 0.1]
 
     # for note in sel_notes:
     #     if note == 12: return True
-
-    durations = output_t[int(len(output_t)*2/4):int(len(output_t)*3/4)]
 
     for dur in durations:
         if float(dur) >= stop_dur: return True
