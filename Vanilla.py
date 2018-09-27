@@ -67,12 +67,14 @@ def create_model(in_size, layer_sizes, out_size):
         out_layer.update(
             {'vr'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
              'ur'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'wif_r'+str_: torch.randn([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
              'wr'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
              'br'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
              'va'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
              'ua'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
              'ua2'+str_:torch.randn([layer_sizes[-1], layer_sizes[-1]], requires_grad=True),
+             'wif_a'+str_: torch.randn([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
              'wa'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
              'ba'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
@@ -83,13 +85,11 @@ def create_model(in_size, layer_sizes, out_size):
 
              'vf'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
              'uf'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'wif_f'+str_: torch.randn([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
              'wf'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
              'bf'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
-             'wif'+str_:torch.randn([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
-
              'wo'+str_:torch.randn([out_size, layer_sizes[-1]], requires_grad=True),
-
              'bo'+str_:torch.zeros([out_size], requires_grad=True)
 
              })
@@ -183,7 +183,8 @@ def prop_func(model, sequence_t, context_t, out_context_t):
         remember = torch.sigmoid(
             model[-1]['wr'+str_] *
             (torch.matmul(model[-1]['vr'+str_], prev_layer_out) +
-             model[-1]['ur'+str_] * context_t[-1][_]
+             model[-1]['ur'+str_] * context_t[-1][_] +
+             torch.matmul(model[-1]['wif_r'+str_], t_states[0][_])
              )
             + model[-1]['br'+str_]
         )
@@ -191,7 +192,8 @@ def prop_func(model, sequence_t, context_t, out_context_t):
         forget = torch.sigmoid(
             model[-1]['wf'+str_] *
             (torch.matmul(model[-1]['vf'+str_], prev_layer_out) +
-             model[-1]['uf'+str_] * context_t[-1][_]
+             model[-1]['uf'+str_] * context_t[-1][_] +
+             torch.matmul(model[-1]['wif_f'+str_], t_states[0][_])
              )
             + model[-1]['bf'+str_]
         )
@@ -201,7 +203,7 @@ def prop_func(model, sequence_t, context_t, out_context_t):
             (torch.matmul(model[-1]['va'+str_], prev_layer_out) +
              model[-1]['ua'+str_] * context_t[-1][_] +
              torch.matmul(model[-1]['ua2'+str_], out_context_t[_]) +
-             torch.matmul(model[-1]['wif'+str_], t_states[0][_])
+             torch.matmul(model[-1]['wif_a'+str_], t_states[0][_])
              )
             + model[-1]['ba'+str_]
         )

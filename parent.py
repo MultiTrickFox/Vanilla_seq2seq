@@ -25,7 +25,7 @@ default_layers = [4, 3, 5]
     # data details
 
 data_path = 'samples.pkl'
-data_size = 30_000
+data_size = 10_000
 batch_size = 400 # /2
 
 
