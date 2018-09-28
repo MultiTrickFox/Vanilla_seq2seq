@@ -28,7 +28,7 @@ layer_sizes = [3,5,4] # [5, 8, 7] # [8, 12, 10] # [2, 4, 5] # [3, 5, 4]
 epochs = 20
 learning_rate = 0.001
 
-data_size = 50 ; batch_size = 50
+batch_size = 400 ; data_size = batch_size * 2
 data_path = 'samples.pkl'
 
 train_basic = True

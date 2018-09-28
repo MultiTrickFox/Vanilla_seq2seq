@@ -10,13 +10,14 @@ import res
 import os
 import glob
 import random
+import numpy as np
 
 
 hm_ins = Vanilla.hm_ins
 hm_outs = Vanilla.hm_outs
 is_stop_cond = Vanilla.stop_cond
 
-MAX_PROP_TIME = 40
+MAX_PROP_TIME = 20
 
 grad_save_time = 15
 
@@ -222,8 +223,8 @@ def prop_func_alt(model, sequence_t, context_t, out_context_t, drop_in, drop_mid
 
 def forward_prop_train(model, sequence, context=None, gen_seed=None, gen_iterations=None, drop_in=0.0, drop_mid=0.0, drop_out=0.0):
 
-    states = [context] if context is not None else Vanilla.init_states(model)
-    out_states = Vanilla.init_outstates(model)
+    states = [context] if context is not None else Vanilla.init_states(model,hm_ins)
+    out_states = Vanilla.init_outstates(model,hm_ins)
     outputs = []
 
     for t in range(len(sequence)):
@@ -249,8 +250,8 @@ def forward_prop_train(model, sequence, context=None, gen_seed=None, gen_iterati
 
 def forward_prop_interact(model, sequence, context=None, gen_seed=None):
 
-    states = [context] if context is not None else Vanilla.init_states(model)
-    out_states = Vanilla.init_outstates(model)
+    states = [context] if context is not None else Vanilla.init_states(model,hm_ins)
+    out_states = Vanilla.init_outstates(model,hm_ins)
     outputs = []
 
     for t in range(len(sequence)):
@@ -273,7 +274,6 @@ def forward_prop_interact(model, sequence, context=None, gen_seed=None):
         out_states.append(out_state)
         outputs.append(output)
         t += 1
-
 
     del outputs[0]
     return outputs
@@ -364,9 +364,9 @@ def load_accugrads_adv(model, model_id=None, from_basic_accugrads=False):  # = T
             print('accugrads.pkl loaded.')
         except:
             print('accugrads: .pkl not found, initializing.')
-            accu_grads_time = init_accugrads_adv(model, grad_save_time)
+            accu_grads_time = init_accugrads_adv(model) # , grad_save_time)
     else:
-        accu_grads_time = init_accugrads_adv(model, grad_save_time)
+        accu_grads_time = init_accugrads_adv(model) # , grad_save_time)
         found_accugrads = glob.glob('model' + model_id + '_accugrads*.pkl')
         print(f'accugrads backward support: integrating {len(found_accugrads)} data(s)')
         for accu_grad in found_accugrads:
@@ -382,20 +382,30 @@ def load_accugrads_adv(model, model_id=None, from_basic_accugrads=False):  # = T
 
 
 def write_neural_state(tstates):
-    with open('states.txt','a') as file:
-        for _, layer in enumerate(tstates):
-            states = []
-            for state in layer:
-                states.append(float(state.sum()))
-            # arr = []  # todo: unlock
-            # [arr.extend(e) for e in [str(state) + ' ' for state in states]]
-            # file.write(f'{_+1}:{arr} \n')
-            file.flush()
-            os.fsync(file.fileno())
+    pass # todo: dont pass
+    # with open('states.txt','a') as file:
+    #     for _, layer in enumerate(tstates):
+    #         states = []
+    #         for state in layer:
+    #             states.append([state{}])
+    #
+    #
+    #             states.append(float(state.sum()))
+    #         file.write(f'{_}:{states} \n')
+    #         file.flush()
+    #         os.fsync(file.fileno())
 
 def write_response(response):
+
+    respon = []
+    for _ in range(res.vocab_size):
+        respon.extend([response[0][_] +
+                       response[1][_] +
+                       response[2][_] +
+                       response[3][_]])
+
     with open('response.txt','a') as file:
-        for resp in response:
+        for resp in respon:
             file.write(str(float(resp))+' ')
         file.write('\n')
         file.flush()

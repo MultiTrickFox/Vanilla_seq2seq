@@ -18,7 +18,7 @@ max_octave = res.MAX_OCTAVE
 max_duration = res.MAX_DURATION
 max_volume = res.MAX_VOLUME
 
-
+vocab_pick_thr = 0.3
 
 
 
@@ -97,11 +97,7 @@ def bootstrap():
 
 def ai_2_human(out_t, chordMode=True):
 
-    len_out = len(out_t) # todo replace with Vanilla.IOsize = 52
-    vocabs, octaves, durations, volumes = out_t[:int(len_out/4)], \
-                                          out_t[int(len_out/4):int(len_out/2)], \
-                                          out_t[int(len_out/2):int(len_out/4*3)], \
-                                          out_t[int(len_out/4*3):]
+    vocabs, octaves, durations, volumes = out_t
 
     # sel_vocabs = []
     sel_octs   = []
@@ -109,7 +105,7 @@ def ai_2_human(out_t, chordMode=True):
     sel_vols   = []
 
     if chordMode:
-        sel_vocabs = [_ for _,e in enumerate(vocabs) if e.item() >= 0.7]
+        sel_vocabs = [_ for _,e in enumerate(vocabs) if e.item() >= vocab_pick_thr]
     else:
         sel_vocabs = [torch.argmax(vocabs).item()]
 
@@ -182,10 +178,7 @@ def get_user_input(inp_len):
     sequence = []
 
     for _ in range(len(vocab_seq)):
-        vec_t = []
-        [vec_t.extend(e) for e in [vocab_seq[_], oct_seq[_], dur_seq[_], vol_seq[_]]]
-
-        sequence.append(Tensor(vec_t))
+        sequence.append(Tensor([vocab_seq[_], oct_seq[_], dur_seq[_], vol_seq[_]]))
 
 
     return sequence
