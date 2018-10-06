@@ -4,7 +4,7 @@ import res
 import utils
 
 import time
-import subprocess
+# import subprocess
 
 import torch
 import numpy as np
@@ -25,8 +25,8 @@ default_layers = [4, 3, 5]
     # data details
 
 data_path = 'samples.pkl'
-data_size = 10_000
-batch_size = 400 # /2
+data_size = 30_000
+batch_size = 400/2
 
 
     # training details
@@ -77,7 +77,7 @@ def simple_parenting(model, accugrads, data):
         # begin parenting
 
     print(f'Batch size : {batch_size}')
-
+    
     print(f'\n@ {get_clock()} : Simple Parent running...')
 
     while successful_epochs < total_epochs:
@@ -270,7 +270,7 @@ def advanced_parenting(model, accugrads, moments, data):
 
 def get_data(): return res.load_data(data_path, data_size)
 
-def get_clock(): return time.asctime(time.localtime(time.time())).split(' ')[3]
+def get_clock(): return time.asctime(time.localtime(time.time())).split(' ')[4]
 
 
 
@@ -360,7 +360,7 @@ if __name__ == '__main__':
     if not shutdown_after_complete:
         utils.plot_loss_txts()
     else:
-        subprocess.call(["shutdown","-s"])
+        os.system('shutdown -s')
 
 
 

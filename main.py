@@ -2,8 +2,7 @@ import res
 import parent
 import interact
 
-is_preprocessed = False
-# parent.shutdown_after_complete = False
+is_preprocessed = False # todo: res.is_preprocessed()
 
 len_data = None
 

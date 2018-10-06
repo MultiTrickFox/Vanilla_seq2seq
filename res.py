@@ -13,7 +13,7 @@ min_seq_len = 10
 max_seq_len = 40
 
 MAX_OCTAVE = 7
-MAX_DURATION = 8.0 ; SPLIT_DURATION = 2.0
+MAX_DURATION = 8 ; SPLIT_DURATION = 2 # of 16th notes
 MAX_VOLUME = 127
 
 show_passed_exceptions = False
@@ -21,18 +21,8 @@ show_passed_exceptions = False
 
 def preprocess():
 
-    vocab_seqs_X, vocab_seqs_Y = [], []
-    oct_seqs_X,   oct_seqs_Y   = [], []
-    dur_seqs_X,   dur_seqs_Y   = [], []
-    vol_seqs_X,   vol_seqs_Y   = [], []
-
     raw_files = glob.glob("samples/*.mid")
     imported_files = []
-
-    # global show_passed_exceptions
-    # if show_passed_exceptions and \
-    #    input('Show Passed Errors (Y/N): ').lower() != 'y':
-    #     show_passed_exceptions = False
 
     print(f'\nDetected CPU(s): {cpu_count()}\n')
 
@@ -48,6 +38,10 @@ def preprocess():
                 imported_files.append(result)
         print(f'Files Obtained: {len(results.get())}\n')
 
+    vocab_seqs_X, vocab_seqs_Y = [], []
+    oct_seqs_X  , oct_seqs_Y   = [], []
+    dur_seqs_X  , dur_seqs_Y   = [], []
+    vol_seqs_X  , vol_seqs_Y   = [], []
 
     with Pool(cpu_count()) as p2:
 
@@ -65,11 +59,12 @@ def preprocess():
         print()
 
     len_samples = len(vocab_seqs_X)
-    print(f'Samples Collected: {len_samples}\n')
 
     data = [
         [vocab_seqs_X, oct_seqs_X, dur_seqs_X, vol_seqs_X],
         [vocab_seqs_Y, oct_seqs_Y, dur_seqs_Y, vol_seqs_Y]]
+
+    print(f'Samples Collected: {len_samples}\n')
 
     return data, len_samples
 
@@ -100,6 +95,7 @@ def parse_fn(stream):
             vol_seq_container.append(vol_vect)
 
             if split_cond(dur_vect):
+                
                 if min_seq_len <= len(vocab_seq_container) <= max_seq_len:
                     mstream.append([vocab_seq_container,
                                     oct_seq_container,
@@ -108,13 +104,11 @@ def parse_fn(stream):
 
                 vocab_seq_container, oct_seq_container, dur_seq_container, vol_seq_container = [], [], [], []
 
-    # gc.collect(stream)
-
     if len(mstream) != 1:
         for i, thing in enumerate(mstream[:-1]):
-                thingp1 = mstream[i+1]
-                vocab_seqs_X.append(thing[0])  ;oct_seqs_X.append(thing[1])  ;dur_seqs_X.append(thing[2])  ;vol_seqs_X.append(thing[3])
-                vocab_seqs_Y.append(thingp1[0]);oct_seqs_Y.append(thingp1[1]);dur_seqs_Y.append(thingp1[2]);vol_seqs_Y.append(thingp1[3])
+            thingp1 = mstream[i+1]
+            vocab_seqs_X.append(thing[0])  ;oct_seqs_X.append(thing[1])  ;dur_seqs_X.append(thing[2])  ;vol_seqs_X.append(thing[3])
+            vocab_seqs_Y.append(thingp1[0]);oct_seqs_Y.append(thingp1[1]);dur_seqs_Y.append(thingp1[2]);vol_seqs_Y.append(thingp1[3])
 
 
     # print('File Parsed.')
@@ -234,11 +228,14 @@ def import_fn(raw_file):
         # finally: print('file scanned.')
 
 def ready_stream(stream):
+
     # def_mtr = music21.meter.TimeSignature('4/4')
-    # for element in stream: # todo: find a way to auto-conv everything to 4/4
+    # for element in stream:
     #     if type(element) is music21.meter.TimeSignature:
     #         del element
     # stream.insert(0, def_mtr)
+    # todo: find a way to auto-conv everything to 4/4
+
     return stream.flat.elements
 
 
