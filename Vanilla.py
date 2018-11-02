@@ -301,7 +301,7 @@ def custom_entropy(output_seq, label_seq, will_softmax=False):
 
     return sequence_losses
 
-def custom_distance(output_seq, label_seq):
+def custom_distance(output_seq, label_seq, pow=2):
     sequence_losses = []
 
     for t in range(len(label_seq)):
@@ -313,15 +313,7 @@ def custom_distance(output_seq, label_seq):
         for _,lbl_e in enumerate(lbl):
             pred_e = pred[_]
 
-            if adv_loss_fn:
-                loss = (lbl_e - pred_e) ** 3
-                # loss = torch.abs(lbl - pred)
-                # loss = (lbl - pred)**2
-                # loss = torch.abs(((lbl - pred) ** 3))
-            else:
-                loss = lbl_e - pred_e
-
-
+            loss = (lbl_e - pred_e).pow(pow)
             sequence_losses.append(loss.sum())
 
     return sequence_losses

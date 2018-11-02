@@ -19,14 +19,14 @@ learning_rate_2 = 0.01
 
     # model details
 
-default_layers = [4, 3, 5]
+default_layers = [8, 5, 10] # [4, 3, 5]
 
 
     # data details
 
 data_path = 'samples.pkl'
 data_size = 30_000
-batch_size = 400/2
+batch_size = 400#/2
 
 
     # training details
