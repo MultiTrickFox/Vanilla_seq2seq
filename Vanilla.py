@@ -364,7 +364,7 @@ def update_model(model, batch_size=1, learning_rate=0.001):
         for _,layer in enumerate(model):
             for __,weight in enumerate(layer.values()):
                 if weight.grad is not None:
-                    weight += learning_rate * weight.grad / batch_size
+                    weight -= learning_rate * weight.grad / batch_size
                     weight.grad = None
 
 
@@ -375,7 +375,7 @@ def update_model_momentum(model, moments, batch_size=1, alpha=0.9, beta=0.1):
                 if weight.grad is not None:
                     weight.grad /= batch_size
                     moments[_][__] = alpha * moments[_][__] + beta * weight.grad
-                    weight += moments[_][__]
+                    weight -= moments[_][__]
                     weight.grad = None
 
 
@@ -386,7 +386,7 @@ def update_model_rmsprop(model, accu_grads, batch_size=1, lr=0.01, alpha=0.9):
                 if weight.grad is not None:
                     weight.grad /= batch_size
                     accu_grads[_][__] = alpha * accu_grads[_][__] + (1 - alpha) * weight.grad**2
-                    weight += lr * weight.grad / (torch.sqrt(accu_grads[_][__]) + 1e-8)
+                    weight -= lr * weight.grad / (torch.sqrt(accu_grads[_][__]) + 1e-8)
                     weight.grad = None
 
 

@@ -111,7 +111,7 @@ def train_rms(model, accu_grads, data, num_epochs=1, display_details=False):
                     loss, grads = result
 
                     Vanilla.apply_grads(model,grads)
-                    batch_loss -= loss
+                    batch_loss += loss
 
                 # handle
 
