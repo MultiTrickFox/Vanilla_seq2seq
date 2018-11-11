@@ -24,8 +24,8 @@ default_layers = [8, 5, 10] # [4, 3, 5]
 
     # data details
 
-data_path = 'samples.pkl'
-data_size = 10_000
+data_path = 'samples*.pkl'
+data_size = 12_000
 batch_size = 400#/2
 
 
@@ -270,7 +270,7 @@ def advanced_parenting(model, accugrads, moments, data):
 
 def get_data(): return res.load_data(data_path, data_size)
 
-def get_clock(): return time.asctime(time.localtime(time.time())).split(' ')[4]
+def get_clock(): return time.asctime(time.localtime(time.time())).split(' ')[3]
 
 
 
