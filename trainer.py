@@ -125,11 +125,7 @@ def train_rms(model, accu_grads, data, num_epochs=1, display_details=False):
 
         losses.append(epoch_loss)
 
-        if display_details:
-            if write_loss_to_txt: res.write_loss(epoch_loss, as_txt=True, epoch_nr=epoch)
-            else: res.write_loss(epoch_loss)
-            end_t = time.time() ; end_clock = time.asctime(time.localtime(end_t)).split(' ')[3]
-            print(f'@ {end_clock} : epoch {epoch+1} / {num_epochs} completed. PET: {round((end_t - start_t),0)}')
+        print('Loss: ',epoch_loss)
 
         # res.save_model(model, epoch, asText=True)
 

@@ -12,7 +12,7 @@ import numpy as np
 
     # parent details
 
-total_epochs = 20
+total_epochs = 100
 learning_rate_1 = 0.001
 learning_rate_2 = 0.01
 
@@ -25,7 +25,7 @@ default_layers = [8, 5, 10] # [4, 3, 5]
     # data details
 
 data_path = 'samples*.pkl'
-data_size = 12_000
+data_size = 45_000
 batch_size = 400#/2
 
 
@@ -35,18 +35,16 @@ start_advanced = False
 
 further_parenting = False
 
-shutdown_after_complete = True
-
 trainer.drop_in  = 0.0
 trainer.drop_mid = 0.1
 trainer.drop_out = 0.0
 
-reducing_batch_sizes = True
-reduce_batch_per_epoch = 5
-reduce_ratio = 3/5
+reducing_batch_sizes = False
+reduce_batch_per_epoch = 10
+reduce_ratio = 9/10
 
 save_intermediate_model = True
-save_model_per_epoch = 5
+save_model_per_epoch = 10
 
 branch_ctr_max = 5
 
@@ -75,8 +73,6 @@ def simple_parenting(model, accugrads, data):
 
 
         # begin parenting
-
-    print(f'Batch size : {batch_size}')
     
     print(f'\n@ {get_clock()} : Simple Parent running...')
 
@@ -133,23 +129,24 @@ def simple_parenting(model, accugrads, data):
 
                     if all(np.array(this_loss[0]) < np.array(branch_goal[0])):
 
-                        prevStep = branch_prevStep
-
-                        checkpoints.append(prevStep)
+                        checkpoints.append(branch_prevStep)
 
                         successful_epochs +=1
 
                         print(f'@ {get_clock()} : '
                               f'.  epoch {successful_epochs} / {total_epochs} completed. ')
-                        res.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
+                        resources.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
 
                         if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
                             trainer.batch_size = int(trainer.batch_size * reduce_ratio)
 
                         if save_intermediate_model and successful_epochs % save_model_per_epoch == 0:
                             ctr_save_id +=1 ; save_id = ctr_save_id * 0.001
-                            res.save_model(branch_prevStep[0], save_id)
+                            resources.save_model(branch_prevStep[0], save_id)
                             trainer.save_accugrads(branch_prevStep[1], save_id)
+                            print(f'Data saved : Part {ctr_save_id}')
+
+                        prevStep = branch_thisStep
 
                         break
 
@@ -235,24 +232,24 @@ def advanced_parenting(model, accugrads, moments, data):
 
                     if all(np.array(this_loss[0]) < np.array(branch_goal[0])):
 
-                        prevStep = branch_prevStep
-
-                        checkpoints.append(prevStep)
+                        checkpoints.append(branch_prevStep)
 
                         successful_epochs +=1
 
                         print(f'@ {get_clock()} : '
                               f'.  epoch {successful_epochs} / {total_epochs} completed. ')
-                        res.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
+                        resources.write_loss(this_loss[0], as_txt=True, epoch_nr=successful_epochs)
 
                         if reducing_batch_sizes and successful_epochs % reduce_batch_per_epoch == 0:
-                            trainer.batch_size = int(trainer.batch_size * 4/5)
+                            trainer.batch_size = int(trainer.batch_size * reduce_ratio)
 
                         if save_intermediate_model and successful_epochs % save_model_per_epoch == 0:
                             ctr_save_id +=1 ; save_id = ctr_save_id * 0.001
-                            res.save_model(branch_prevStep[0], save_id)
+                            resources.save_model(branch_prevStep[0], save_id)
                             trainer.save_accugrads(branch_prevStep[1], save_id)
-                            trainer.save_moments(branch_prevStep[2], save_id)
+                            print(f'Data saved : Part {ctr_save_id}')
+
+                        prevStep = branch_thisStep
 
                         break
 
@@ -337,6 +334,11 @@ def run_advanced_parenting(data):
 
 if __name__ == '__main__':
 
+    print(f'Data size  : {data_size}')
+    print(f'Batch size : {batch_size}')
+    print(f'Epochs     : {total_epochs}')
+    print('')
+
     res.initialize_loss_txt() ; torch.set_default_tensor_type('torch.FloatTensor')
 
     data = get_data()
@@ -356,11 +358,6 @@ if __name__ == '__main__':
         run_advanced_parenting(data)
 
     # end-of-parent
-
-    if not shutdown_after_complete:
-        utils.plot_loss_txts()
-    else:
-        os.system('shutdown -s')
 
 
 

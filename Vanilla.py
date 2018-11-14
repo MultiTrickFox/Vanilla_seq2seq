@@ -19,18 +19,18 @@ def create_model(in_size, layer_sizes, out_size):
         str_ = '_'+str(_)
 
         inp_layer.update(
-            {'vr'+str_:torch.ones([layer_sizes[0], in_size], requires_grad=True),
-             'ur'+str_:torch.ones([layer_sizes[0], layer_sizes[0]], requires_grad=True),
-             'wr'+str_:torch.ones([layer_sizes[0]], requires_grad=True),
+            {'vr'+str_:torch.randn([layer_sizes[0], in_size], requires_grad=True),
+             'ur'+str_:torch.randn([layer_sizes[0], layer_sizes[0]], requires_grad=True),
+             'wr'+str_:torch.randn([layer_sizes[0]], requires_grad=True),
              'br'+str_:torch.zeros([layer_sizes[0]], requires_grad=True),
 
-             'va'+str_:torch.ones([layer_sizes[0], in_size], requires_grad=True),
-             'ua'+str_:torch.ones([layer_sizes[0], layer_sizes[0]], requires_grad=True),
-             'wa'+str_:torch.ones([layer_sizes[0]], requires_grad=True),
+             'va'+str_:torch.randn([layer_sizes[0], in_size], requires_grad=True),
+             'ua'+str_:torch.randn([layer_sizes[0], layer_sizes[0]], requires_grad=True),
+             'wa'+str_:torch.randn([layer_sizes[0]], requires_grad=True),
              'ba'+str_:torch.zeros([layer_sizes[0]], requires_grad=True),
 
-             'vs'+str_:torch.ones([layer_sizes[0], in_size], requires_grad=True),
-             'ws'+str_:torch.ones([layer_sizes[0]], requires_grad=True),
+             'vs'+str_:torch.randn([layer_sizes[0], in_size], requires_grad=True),
+             'ws'+str_:torch.randn([layer_sizes[0]], requires_grad=True),
              'bs'+str_:torch.zeros([layer_sizes[0]], requires_grad=True)
 
              })
@@ -44,18 +44,18 @@ def create_model(in_size, layer_sizes, out_size):
         prev_lsize = layer_sizes[_-1]
 
         model.append(
-            {'vr':torch.ones([layer_sizes[_], prev_lsize], requires_grad=True),
-             'ur':torch.ones([layer_sizes[_]], requires_grad=True),
-             'wr':torch.ones([layer_sizes[_]], requires_grad=True),
+            {'vr':torch.randn([layer_sizes[_], prev_lsize], requires_grad=True),
+             'ur':torch.randn([layer_sizes[_]], requires_grad=True),
+             'wr':torch.randn([layer_sizes[_]], requires_grad=True),
              'br':torch.zeros([layer_sizes[_]], requires_grad=True),
 
-             'va':torch.ones([layer_sizes[_], prev_lsize], requires_grad=True),
-             'ua': torch.ones([layer_sizes[_]], requires_grad=True),
-             'wa':torch.ones([layer_sizes[_]], requires_grad=True),
+             'va':torch.randn([layer_sizes[_], prev_lsize], requires_grad=True),
+             'ua': torch.randn([layer_sizes[_]], requires_grad=True),
+             'wa':torch.randn([layer_sizes[_]], requires_grad=True),
              'ba':torch.zeros([layer_sizes[_]], requires_grad=True),
 
-             'vs':torch.ones([layer_sizes[_], prev_lsize], requires_grad=True),
-             'ws':torch.ones([layer_sizes[_]], requires_grad=True),
+             'vs':torch.randn([layer_sizes[_], prev_lsize], requires_grad=True),
+             'ws':torch.randn([layer_sizes[_]], requires_grad=True),
              'bs':torch.zeros([layer_sizes[_]], requires_grad=True)
 
              })
@@ -69,31 +69,31 @@ def create_model(in_size, layer_sizes, out_size):
         str_ = '_'+str(_)
 
         out_layer.update(
-            {'vr'+str_:torch.ones([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
-             'ur'+str_:torch.ones([layer_sizes[-1]], requires_grad=True),
-             'wif_r'+str_: torch.ones([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
-             'wr'+str_:torch.ones([layer_sizes[-1]], requires_grad=True),
+            {'vr'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
+             'ur'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'wif_r'+str_: torch.randn([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
+             'wr'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
              'br'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
-             'va'+str_:torch.ones([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
-             'ua'+str_:torch.ones([layer_sizes[-1]], requires_grad=True),
-             'ua2'+str_:torch.ones([layer_sizes[-1], layer_sizes[-1]], requires_grad=True),
-             'wif_a'+str_: torch.ones([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
-             'wa'+str_:torch.ones([layer_sizes[-1]], requires_grad=True),
+             'va'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
+             'ua'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'ua2'+str_:torch.randn([layer_sizes[-1], layer_sizes[-1]], requires_grad=True),
+             'wif_a'+str_: torch.randn([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
+             'wa'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
              'ba'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
-             'vs'+str_:torch.ones([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
-             'us'+str_:torch.ones([layer_sizes[-1]], requires_grad=True),
-             'ws'+str_:torch.ones([layer_sizes[-1], layer_sizes[-1]], requires_grad=True),
+             'vs'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
+             'us'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'ws'+str_:torch.randn([layer_sizes[-1], layer_sizes[-1]], requires_grad=True),
              'bs'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
-             'vf'+str_:torch.ones([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
-             'uf'+str_:torch.ones([layer_sizes[-1]], requires_grad=True),
-             'wif_f'+str_: torch.ones([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
-             'wf'+str_:torch.ones([layer_sizes[-1]], requires_grad=True),
+             'vf'+str_:torch.randn([layer_sizes[-1], layer_sizes[-2]], requires_grad=True),
+             'uf'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
+             'wif_f'+str_: torch.randn([layer_sizes[-1], layer_sizes[0]], requires_grad=True),
+             'wf'+str_:torch.randn([layer_sizes[-1]], requires_grad=True),
              'bf'+str_:torch.zeros([layer_sizes[-1]], requires_grad=True),
 
-             'wo'+str_:torch.ones([out_size, layer_sizes[-1]], requires_grad=True),
+             'wo'+str_:torch.randn([out_size, layer_sizes[-1]], requires_grad=True),
              'bo'+str_:torch.zeros([out_size], requires_grad=True)
 
              })
@@ -322,14 +322,14 @@ def custom_distance(output_seq, label_seq, pow=2):
 
 
 def init_states(model, hm_ins):
-    states_t0 = [[torch.ones([len(model[0]['vr_0'])], requires_grad=True) for _ in range(hm_ins)]]
+    states_t0 = [[torch.zeros([len(model[0]['vr_0'])], requires_grad=False) for _ in range(hm_ins)]]
     for _ in range(1,len(model)-1):
-        states_t0.append(torch.ones([len(model[_]['vr'])], requires_grad=True))
-    states_t0.append(torch.ones([len(model[-1]['vr_0'])], requires_grad=True))
+        states_t0.append(torch.zeros([len(model[_]['vr'])], requires_grad=False))
+    states_t0.append(torch.zeros([len(model[-1]['vr_0'])], requires_grad=False))
     return [states_t0]
 
 def init_outstates(model, hm_outs):
-    return [[torch.ones([len(model[-1]['vr_0'])], requires_grad=True) for _ in range(hm_outs)]]
+    return [[torch.zeros([len(model[-1]['vr_0'])], requires_grad=False) for _ in range(hm_outs)]]
 
 
 import res
