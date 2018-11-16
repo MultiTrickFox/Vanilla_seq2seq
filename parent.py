@@ -39,7 +39,7 @@ trainer.drop_in  = 0.0
 trainer.drop_mid = 0.1
 trainer.drop_out = 0.0
 
-reducing_batch_sizes = False
+reducing_batch_sizes = True
 reduce_batch_per_epoch = 10
 reduce_ratio = 9/10
 

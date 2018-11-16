@@ -66,6 +66,9 @@ def train_rms(model, accu_grads, data, num_epochs=1, display_details=False):
     num_batches = int(num_samples / batch_size)
     num_workers = torch.multiprocessing.cpu_count()
 
+    def batchify(data):
+        return [data[_ * batch_size : (_+1) * batch_size] for _ in range(num_batches)]
+
     if display_details:
         print('\n'
               f'\/ Training Started : Rms \/\n'
@@ -85,15 +88,11 @@ def train_rms(model, accu_grads, data, num_epochs=1, display_details=False):
 
         random.shuffle(data)
 
-        for batch in range(num_batches):
+        for batch in batchify(data):
 
             # create batch
 
             batch_loss = np.zeros_like(epoch_loss)
-
-            batch_ptr = batch * batch_size
-            batch_end_ptr = (batch+1) * batch_size
-            batch = data[batch_ptr:batch_end_ptr]
 
             with thisPool(num_workers) as pool:
 
